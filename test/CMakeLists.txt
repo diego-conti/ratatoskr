@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.10)
 project(TestRatatoskr)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-add_compile_definitions(IN_GINAC) 
 add_compile_options(-g -O0)
 include_directories(${CMAKE_SOURCE_DIR}/ratatoskr/src)
 
