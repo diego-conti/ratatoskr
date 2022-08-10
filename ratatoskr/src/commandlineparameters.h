@@ -55,6 +55,28 @@ struct StringCommandLineParameterDescription : public CommandLineParameterDescri
 	}
 };
 
+template<typename Parameters, typename ParameterType, ParameterType Parameters::*parameter>
+struct IntegerCommandLineParameterDescription : public CommandLineParameterDescription_impl<Parameters> {
+	void fill(Parameters& structure, const po::variable_value& command_line_variable) const override {
+		structure.*parameter=command_line_variable.as<int>();
+	}
+	unique_ptr<CommandLineParameterDescription_impl<Parameters>> duplicate() const override {
+		return make_unique<IntegerCommandLineParameterDescription>();
+	}
+	const po::value_semantic* value() const override {return po::value<int>();}
+};
+
+template<typename Parameters, typename ParameterType, ParameterType Parameters::*parameter>
+struct BooleanCommandLineParameterDescription : public CommandLineParameterDescription_impl<Parameters> {
+	void fill(Parameters& structure, const po::variable_value& command_line_variable) const override {
+		structure.*parameter=command_line_variable.as<bool>();
+	}
+	unique_ptr<CommandLineParameterDescription_impl<Parameters>> duplicate() const override {
+		return make_unique<BooleanCommandLineParameterDescription>();
+	}
+	const po::value_semantic* value() const override {return po::value<bool>();}
+};
+
 
 template<typename Parameters>
 class DescriptionOfCommandLineParameters {
@@ -86,6 +108,16 @@ public:
 	template<typename ParameterType, ParameterType Parameters::*parameter>
 	void addStringCommandLineParameterDescription(string name, string description) {
 		using Type = StringCommandLineParameterDescription<Parameters,ParameterType,parameter>;
+		parameter_descriptions.emplace_back(name,description,make_unique<Type>());
+	}
+	template<typename ParameterType, ParameterType Parameters::*parameter>
+	void addIntegerCommandLineParameterDescription(string name, string description) {
+		using Type = IntegerCommandLineParameterDescription<Parameters,ParameterType,parameter>;
+		parameter_descriptions.emplace_back(name,description,make_unique<Type>());
+	}
+	template<typename ParameterType, ParameterType Parameters::*parameter>
+	void addBooleanCommandLineParameterDescription(string name, string description) {
+		using Type = BooleanCommandLineParameterDescription<Parameters,ParameterType,parameter>;
 		parameter_descriptions.emplace_back(name,description,make_unique<Type>());
 	}
 };
