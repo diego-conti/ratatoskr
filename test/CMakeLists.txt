@@ -9,7 +9,7 @@ include_directories(${CMAKE_SOURCE_DIR}/ratatoskr/src)
 set (CXXTESTFLAGS --error-printer)
 
 enable_testing()
-foreach(test testcommandlineparameters)
+foreach(test testcommandlineparameters testprogramdescriptions)
 	set (runner run${test}.cpp)
 	set (testdefinition ${test}.h)
 	add_executable(${test} ${runner} src/${testdefinition} src/test.h)

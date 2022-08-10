@@ -17,21 +17,21 @@ struct CommandLineParameters {
 };
 
 
-class CommandLineTestSuite : public CxxTest::TestSuite
+class CommandLineParametersTestSuite : public CxxTest::TestSuite
 {
 	DescriptionOfCommandLineParameters<CommandLineParameters> description_strings;
 	DescriptionOfCommandLineParameters<CommandLineParameters> description_integers;
 	DescriptionOfCommandLineParameters<CommandLineParameters> description_booleans;
 public:
-	CommandLineTestSuite() {
-		description_strings.addStringCommandLineParameterDescription<std::string,&CommandLineParameters::string_parameter1>("param1","first parameter");
-		description_strings.addStringCommandLineParameterDescription<std::string,&CommandLineParameters::string_parameter2>("param2","second parameter");
+	CommandLineParametersTestSuite() {
+		description_strings.addStringCommandLineParameterDescription<&CommandLineParameters::string_parameter1>("param1","first parameter");
+		description_strings.addStringCommandLineParameterDescription<&CommandLineParameters::string_parameter2>("param2","second parameter");
 
-		description_integers.addIntegerCommandLineParameterDescription<int,&CommandLineParameters::int_parameter1>("param1","first parameter");
-		description_integers.addIntegerCommandLineParameterDescription<int,&CommandLineParameters::int_parameter2>("param2","second parameter");
+		description_integers.addIntegerCommandLineParameterDescription<&CommandLineParameters::int_parameter1>("param1","first parameter");
+		description_integers.addIntegerCommandLineParameterDescription<&CommandLineParameters::int_parameter2>("param2","second parameter");
 
-		description_booleans.addBooleanCommandLineParameterDescription<bool,&CommandLineParameters::bool_parameter1>("param1","first parameter");
-		description_booleans.addBooleanCommandLineParameterDescription<bool,&CommandLineParameters::bool_parameter2>("param2","second parameter");
+		description_booleans.addBooleanCommandLineParameterDescription<&CommandLineParameters::bool_parameter1>("param1","first parameter");
+		description_booleans.addBooleanCommandLineParameterDescription<&CommandLineParameters::bool_parameter2>("param2","second parameter");
 	}
 	void testDescription() {
 		string s=description_strings.human_readable_description();
