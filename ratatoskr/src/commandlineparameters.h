@@ -59,18 +59,29 @@ struct StringCommandLineParameterDescription : public CommandLineParameterDescri
 template<typename Parameters>
 class DescriptionOfCommandLineParameters {
 	vector<CommandLineParameterDescription<Parameters>> parameter_descriptions;
-public:
 	po::options_description description() const {
 		po::options_description options("Allowed options");
 		for (auto& desc : parameter_descriptions)
 			desc.add_option_description(options);
 		return options;
 	}
-	Parameters parametersFromCommandLine(const po::variables_map& vm) {
+	Parameters parametersFromVariableMap(const po::variables_map& vm) {
 		Parameters params;
 		for (auto& desc : parameter_descriptions)
 			desc.fill(params,vm);
 		return params;
+	}
+public:
+	Parameters parametersFromCommandLine(int argc, const char** argv) {
+		po::variables_map vm;
+		po::store(po::parse_command_line(argc, argv, description()), vm);
+		po::notify(vm);
+		return parametersFromVariableMap(vm);
+	}
+	string human_readable_description() const {
+		stringstream s;
+		s<<description();
+		return s.str();
 	}
 	template<typename ParameterType, ParameterType Parameters::*parameter>
 	void addStringCommandLineParameterDescription(string name, string description) {
