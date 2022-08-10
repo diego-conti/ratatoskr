@@ -22,7 +22,7 @@
 #include <vector>
 #include <cxxtest/TestSuite.h>
 #include <ginac/ginac.h>
-#include "wedge/base/expressions.h"
+#include "wedge/wedge.h"
 
 //To debug, run cxxtestgen with the flag --no-eh
 #ifndef CXXTEST_HAVE_EH
