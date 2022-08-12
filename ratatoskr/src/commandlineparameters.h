@@ -1,11 +1,16 @@
 #include "wedge/wedge.h"
 #include "boost/program_options.hpp"
-
+#include <stdexcept>
 using std::string;
 
 using namespace Wedge;
 
 namespace po = boost::program_options;
+
+class MissingParameter : public std::runtime_error {
+public:
+	MissingParameter(string parametername) : runtime_error{"required parameter not indicated: "s+parametername} {}
+};
 
 template<typename Parameters, typename ParameterType>
 class CommandLineParameterDescription final {
@@ -19,11 +24,12 @@ public:
 	string name() const {return name_;}
 	string description() const {return description_;}
 	void fill(Parameters& structure, const po::variables_map& command_line_variable_map) const {
+		if (!command_line_variable_map.count(name_)) throw MissingParameter(name_);
 		auto& variable=command_line_variable_map[name_];
 		structure.*p_=variable.as<ParameterType>();
 	}
 	void add_option_description(po::options_description& options) const {
-		options.add_options()(name_.c_str(), po::value<ParameterType>(),description_.c_str());
+		options.add_options()(name_.c_str(), po::value<remove_reference_t<ParameterType>>(),description_.c_str());
 	}
 };
 
@@ -64,7 +70,7 @@ class DescriptionOfCommandLineParameters {
 		return options;
 	}
 
-	Parameters parametersFromVariableMap(const po::variables_map& vm) {
+	Parameters parametersFromVariableMap(const po::variables_map& vm) const {
 		Parameters params;
 		auto fill_parameter = [&vm,&params] (auto& desc) {
 			desc.fill(params,vm);
@@ -74,7 +80,7 @@ class DescriptionOfCommandLineParameters {
 	}
 public:
 	DescriptionOfCommandLineParameters(TupleOfParameterDescriptions parameter_descriptions) : parameter_descriptions{parameter_descriptions}{}
-	Parameters parametersFromCommandLine(int argc, const char** argv) {
+	Parameters parametersFromCommandLine(int argc, const char** argv) const {
 		po::variables_map vm;
 		po::store(po::parse_command_line(argc, argv, description()), vm);
 		po::notify(vm);

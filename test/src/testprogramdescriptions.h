@@ -42,11 +42,9 @@ auto description_booleans=make_parameter_description<BoolCommandLineParameters>
 auto program_descriptions=alternative_program_descriptions(
 		"stringprogram", "run a test program with string parameters", description_strings,
 			[] (auto parameters) {
-	cout<<parameters.int_parameter1;
 				TS_ASSERT_EQUALS(parameters.string_parameter1,"number1")},
 		"intprogram", "run a test program with int parameters", description_integers,
 		[] (auto parameters) {
-					cout<<parameters.int_parameter1;
 			TS_ASSERT_EQUALS(parameters.int_parameter1,-2)},
 		"boolprogram", "run a test program with bool parameters", description_booleans,
 		[] (auto parameters) {
@@ -57,18 +55,23 @@ class CommandLineCommandTestSuite : public CxxTest::TestSuite
 {
 public:
 	void testProgramDescriptions1() {
-		const char* (argv[]) {"program invocation", "stringprogram", "--param1=number1"};
+		const char* (argv[]) {"program invocation", "stringprogram", "--param1=number1", "--param2=2"};
 		int argc=std::size(argv);
-		program_descriptions.run(argc,argv);
+		TS_ASSERT(program_descriptions.run(argc,argv));
 	}
 	void testProgramDescriptions2() {
-		const char* (argv[]) {"program invocation", "intprogram", "--param1=-3"};
+		const char* (argv[]) {"program invocation", "intprogram", "--param1=-2", "--param2=2"};
 		int argc=std::size(argv);
-		program_descriptions.run(argc,argv);
+		TS_ASSERT(program_descriptions.run(argc,argv));
 	}
 	void testProgramDescriptions3() {
-		const char* (argv[]) {"program invocation", "boolprogram", "--param1=true"};
+		const char* (argv[]) {"program invocation", "boolprogram", "--param1=true", "--param2=false"};
 		int argc=std::size(argv);
-		program_descriptions.run(argc,argv);
+		TS_ASSERT(program_descriptions.run(argc,argv));
+	}
+	void testProgramDescriptions4() {
+		const char* (argv[]) {"program invocation", "noprogram", "--param1=-3", "--param2=2"};
+		int argc=std::size(argv);
+		TS_ASSERT(!program_descriptions.run(argc,argv));
 	}
 };

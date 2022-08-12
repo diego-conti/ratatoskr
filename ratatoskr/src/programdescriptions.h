@@ -42,21 +42,38 @@ auto tuple_of_alternative_program_descriptions(const string& command, const stri
 template<typename TupleOfProgramDescriptionTypes>
 class CommandLineProgramDescriptions {
 	TupleOfProgramDescriptionTypes programDescriptions;
-	po::options_description command_description() const {
-		po::options_description commands("Allowed commands");
-		auto add_to_options_description = [&commands] (auto& desc) {
-			commands.add_options()(desc.command(),desc.purpose());
+	string command_description() const {
+		stringstream commands;
+		commands<<"Allowed commands"<<endl;
+		auto add_to_command_description = [&commands] (auto& desc) {
+			commands<<desc.command()<<'\t'<<desc.purpose()<<endl;
 		};
-		iterate_over_tuple(add_to_options_description,programDescriptions);
-		return commands;
+		iterate_over_tuple(add_to_command_description,programDescriptions);
+		return commands.str();
 	}
-
+	bool run_matching_program(const string& command, int argc, const char** argv) const {
+		bool ran=false;
+		auto run_if_matches= [&command,argc,argv,&ran](auto& program_description) {
+			if (program_description.match(command)) {
+				assert(!ran);
+				program_description.run(argc-1,argv+1);
+				ran=true;
+			}
+		};
+		iterate_over_tuple(run_if_matches,programDescriptions);
+		return ran;
+	}
 public:
 	CommandLineProgramDescriptions(TupleOfProgramDescriptionTypes programDescriptions)
 		: programDescriptions{programDescriptions} {}
-	void run(int argc, const char** argv) const {
-		auto desc=command_description();
-		cout<<desc<<endl;
+	//returns true if a program was run
+	bool run(int argc, const char** argv) const {
+		if (argc>=2 && run_matching_program(argv[1],argc,argv))
+			return true;
+		else {
+			cout<<command_description();
+			return false;
+		}
 	}
 };
 

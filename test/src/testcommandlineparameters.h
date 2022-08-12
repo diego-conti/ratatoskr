@@ -96,6 +96,11 @@ public:
 		auto parameters=description_booleans.parametersFromCommandLine(argc,argv);
 		TS_ASSERT_EQUALS(parameters.bool_parameter1,true);
 		TS_ASSERT_EQUALS(parameters.bool_parameter2,false);
+	}
+	void testThrows() {
+		const char* (argv[]) {"program invocation", "--param1=true"};
+		int argc=std::size(argv);
+		TS_ASSERT_THROWS(description_booleans.parametersFromCommandLine(argc,argv),MissingParameter);
 
 	}
 };
