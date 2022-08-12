@@ -16,23 +16,25 @@ struct CommandLineParameters {
 	bool bool_parameter2;
 };
 
+auto description_strings=make_parameter_description<CommandLineParameters>
+(
+		"param1","first parameter",&CommandLineParameters::string_parameter1,
+		"param2","second parameter",&CommandLineParameters::string_parameter2
+);
+auto description_integers=make_parameter_description<CommandLineParameters>
+(
+		"param1","first parameter",&CommandLineParameters::int_parameter1,
+		"param2","second parameter",&CommandLineParameters::int_parameter2
+);
+auto description_booleans=make_parameter_description<CommandLineParameters>
+(
+		"param1","first parameter",&CommandLineParameters::bool_parameter1,
+		"param2","second parameter",&CommandLineParameters::bool_parameter2
+);
 
 class CommandLineParametersTestSuite : public CxxTest::TestSuite
 {
-	DescriptionOfCommandLineParameters<CommandLineParameters> description_strings;
-	DescriptionOfCommandLineParameters<CommandLineParameters> description_integers;
-	DescriptionOfCommandLineParameters<CommandLineParameters> description_booleans;
 public:
-	CommandLineParametersTestSuite() {
-		description_strings.addStringCommandLineParameterDescription<&CommandLineParameters::string_parameter1>("param1","first parameter");
-		description_strings.addStringCommandLineParameterDescription<&CommandLineParameters::string_parameter2>("param2","second parameter");
-
-		description_integers.addIntegerCommandLineParameterDescription<&CommandLineParameters::int_parameter1>("param1","first parameter");
-		description_integers.addIntegerCommandLineParameterDescription<&CommandLineParameters::int_parameter2>("param2","second parameter");
-
-		description_booleans.addBooleanCommandLineParameterDescription<&CommandLineParameters::bool_parameter1>("param1","first parameter");
-		description_booleans.addBooleanCommandLineParameterDescription<&CommandLineParameters::bool_parameter2>("param2","second parameter");
-	}
 	void testDescription() {
 		string s=description_strings.human_readable_description();
 		TS_ASSERT_DIFFERS(s.find("--param1 arg"),string::npos);

@@ -23,37 +23,51 @@ struct BoolCommandLineParameters {
 };
 
 
+auto description_strings=make_parameter_description<StringCommandLineParameters>
+(
+		"param1","first parameter",&StringCommandLineParameters::string_parameter1,
+		"param2","second parameter",&StringCommandLineParameters::string_parameter2
+);
+auto description_integers=make_parameter_description<IntCommandLineParameters>
+(
+		"param1","first parameter",&IntCommandLineParameters::int_parameter1,
+		"param2","second parameter",&IntCommandLineParameters::int_parameter2
+);
+auto description_booleans=make_parameter_description<BoolCommandLineParameters>
+(
+		"param1","first parameter",&BoolCommandLineParameters::bool_parameter1,
+		"param2","second parameter",&BoolCommandLineParameters::bool_parameter2
+);
+
+auto program_descriptions=alternative_program_descriptions(
+		"stringprogram", description_strings,
+			[] (auto parameters) {
+	cout<<parameters.int_parameter1;
+				TS_ASSERT_EQUALS(parameters.string_parameter1,"number1")},
+		"intprogram", description_integers,
+		[] (auto parameters) {
+					cout<<parameters.int_parameter1;
+			TS_ASSERT_EQUALS(parameters.int_parameter1,-2)},
+		"boolprogram", description_booleans,
+		[] (auto parameters) {
+			TS_ASSERT_EQUALS(parameters.bool_parameter1,true)}
+);
+
 class CommandLineCommandTestSuite : public CxxTest::TestSuite
 {
-	DescriptionOfCommandLineParameters<StringCommandLineParameters> description_strings;
-	DescriptionOfCommandLineParameters<IntCommandLineParameters> description_integers;
-	DescriptionOfCommandLineParameters<BoolCommandLineParameters> description_booleans;
-
 public:
-	CommandLineCommandTestSuite() {
-		description_strings.addStringCommandLineParameterDescription<&StringCommandLineParameters::string_parameter1>("param1","first parameter");
-		description_strings.addStringCommandLineParameterDescription<&StringCommandLineParameters::string_parameter2>("param2","second parameter");
-
-		description_integers.addIntegerCommandLineParameterDescription<&IntCommandLineParameters::int_parameter1>("param1","first parameter");
-		description_integers.addIntegerCommandLineParameterDescription<&IntCommandLineParameters::int_parameter2>("param2","second parameter");
-
-		description_booleans.addBooleanCommandLineParameterDescription<&BoolCommandLineParameters::bool_parameter1>("param1","first parameter");
-		description_booleans.addBooleanCommandLineParameterDescription<&BoolCommandLineParameters::bool_parameter2>("param2","second parameter");
-	}
-
-	void testProgramDescriptions() {
-		auto program_descriptions=alternative_program_descriptions(
-				"stringprogram", description_strings,
-					[] (auto parameters) {
-						TS_ASSERT_EQUALS(parameters.string_parameter1,"number1")},
-				"intprogram", description_integers,
-				[] (auto parameters) {
-					TS_ASSERT_EQUALS(parameters.int_parameter1,-2)},
-				"boolprogram", description_booleans,
-				[] (auto parameters) {
-					TS_ASSERT_EQUALS(parameters.bool_parameter1,true)}
-		);
+	void testProgramDescriptions1() {
 		const char* (argv[]) {"program invocation", "stringprogram", "--param1=number1"};
+		int argc=std::size(argv);
+		program_descriptions.run(argc,argv);
+	}
+	void testProgramDescriptions2() {
+		const char* (argv[]) {"program invocation", "intprogram", "--param1=-3"};
+		int argc=std::size(argv);
+		program_descriptions.run(argc,argv);
+	}
+	void testProgramDescriptions3() {
+		const char* (argv[]) {"program invocation", "boolprogram", "--param1=true"};
 		int argc=std::size(argv);
 		program_descriptions.run(argc,argv);
 	}
