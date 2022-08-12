@@ -1,16 +1,11 @@
 #include "wedge/wedge.h"
 #include "boost/program_options.hpp"
-#include <stdexcept>
-using std::string;
+#include "iterateovertuple.h"
+#include "errors.h"
 
 using namespace Wedge;
 
 namespace po = boost::program_options;
-
-class MissingParameter : public std::runtime_error {
-public:
-	MissingParameter(string parametername) : runtime_error{"required parameter not indicated: "s+parametername} {}
-};
 
 template<typename Parameters, typename ParameterType>
 class CommandLineParameterDescription final {
@@ -46,15 +41,6 @@ auto tuple_of_parameter_descriptions(const string& name, const string& descripti
 }
 
 
-template<typename F, typename Tuple, int n=0, enable_if_t<n<tuple_size_v<Tuple>,int> =0>
-void iterate_over_tuple(F function, const Tuple& tuple) {
-	function(std::get<n>(tuple));
-	iterate_over_tuple<F,Tuple,n+1>(function,tuple);
-}
-
-template<typename F, typename Tuple, int n=0,enable_if_t<n>=tuple_size_v<Tuple>,int> =0>
-void iterate_over_tuple(F function, const Tuple& tuple) {
-}
 
 
 template<typename Parameters, typename TupleOfParameterDescriptions>
