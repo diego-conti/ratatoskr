@@ -40,15 +40,15 @@ auto description_booleans=make_parameter_description<BoolCommandLineParameters>
 );
 
 auto program_descriptions=alternative_program_descriptions(
-		"stringprogram", description_strings,
+		"stringprogram", "run a test program with string parameters", description_strings,
 			[] (auto parameters) {
 	cout<<parameters.int_parameter1;
 				TS_ASSERT_EQUALS(parameters.string_parameter1,"number1")},
-		"intprogram", description_integers,
+		"intprogram", "run a test program with int parameters", description_integers,
 		[] (auto parameters) {
 					cout<<parameters.int_parameter1;
 			TS_ASSERT_EQUALS(parameters.int_parameter1,-2)},
-		"boolprogram", description_booleans,
+		"boolprogram", "run a test program with bool parameters", description_booleans,
 		[] (auto parameters) {
 			TS_ASSERT_EQUALS(parameters.bool_parameter1,true)}
 );
