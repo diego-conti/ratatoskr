@@ -1,63 +1,33 @@
 #include "commandlineparameters.h"
-
-/*
-template<typename Tuple>
-class InterpretationContext {
-	Tuple base_parameters;
-public:
-	InterpretationContext(Tuple&& base_parameters) : base_parameters{std::forward<Tuple>(base_parameters)} {}
-
-	ex form (const string& form) const {return ParseDifferentialForm(G->e(),form,lst);}
-	matrix metric_from_musical_isomorphism(const string& flat) const ;
-	ex ginacexpr(const string& rep) const {
-		return ex{rep,symbols};
-	}
-};
+#include <type_traits>
 
 
-
-
-auto tuple_of_context_parameters() {
-	return make_tuple();
-}
-
-template<typename ParameterType, typename Parameters, typename... T>
-auto tuple_of_context_parameters(ParameterType Parameters::*p,T... otherParameters) {
-	return insert_in_tuple(p, tuple_of_context_parameters(otherParameters...));
-}
-
-template<typename... T>
-auto make_interpretation_context(T... base_parameters) {
-	auto tuple=tuple_of_context_parameters(base_parameters...);
-	return InterpretationContext<decltype(base_parameters)>(base_parameters);
-}
-
-
-template<typename Input, typename Output, Output InterpretationContext::*convert(const Input& input)>
-class Interpreter {
-public:
-	Output operator() (const InterpretationContext& context, const Input& input) const {
-		return context::*convert(input);
-	}
-};
-*/
-
-
-template<typename Parameters, typename ParameterType>
-class LieAlgebraParameterDescription final {
+template<typename Parameters, typename ParameterType,typename Converter, typename RequiredParameters=tuple<>>
+class DependentParameterDescription final {
 	string name_;
 	string description_;
 	unique_ptr<ParameterType> Parameters::*p_;
+	Converter converter;
+	RequiredParameters required_parameters;
 public:
-	LieAlgebraParameterDescription(string name, string description, unique_ptr<ParameterType> Parameters::*p)
-		: name_{name}, description_{description}, p_{p}
- {}
+	template <typename U=RequiredParameters>
+	DependentParameterDescription(typename std::enable_if_t<true,string> name, string description,
+			unique_ptr<ParameterType> Parameters::*p, Converter& converter)
+		: name_{name}, description_{description}, p_{p}, converter{converter}
+		{}
+
+	DependentParameterDescription(string name, string description,
+			unique_ptr<ParameterType> Parameters::*p, Converter& converter,const RequiredParameters& required_parameters)
+		: name_{name}, description_{description}, p_{p}, converter{converter}, required_parameters{required_parameters}
+		{}
 	string name() const {return name_;}
 	string description() const {return description_;}
 	void fill(Parameters& parameters, const po::variables_map& command_line_variable_map) const {
 		if (!command_line_variable_map.count(name_)) throw MissingParameter(name_);
-		auto& variable=command_line_variable_map[name_].as<string>();
-		parameters.*p_=make_unique<AbstractLieGroup<false>>(variable.c_str());
+		auto& text=command_line_variable_map[name_].as<string>();
+		auto bind = [&parameters] (auto... pointers) {return tie(parameters.*pointers...);};
+		auto bound_required_parameters=std::apply(bind, required_parameters);
+		parameters.*p_=std::apply(converter,insert_in_tuple(text,bound_required_parameters));
 	}
 	void add_option_description(po::options_description& options) const {
 		options.add_options()(name_.c_str(), po::value<string>(),description_.c_str());
@@ -77,7 +47,11 @@ auto lie_algebra(unique_ptr<ParameterType> Parameters::*p) {
 template<typename Parameters, typename ParameterType, typename... T>
 auto tuple_of_parameter_descriptions(const string& name, const string& description,
 		lie_algebra_tag<Parameters,ParameterType> tag,	T... otherParameters) {
-	LieAlgebraParameterDescription<Parameters,ParameterType> parameter_description(name,description,tag.p);
+	auto converter=[] (const string& parameter) {
+		return make_unique<AbstractLieGroup<false>>(parameter.c_str());
+	};
+
+	DependentParameterDescription<Parameters,ParameterType,decltype(converter)> parameter_description{name,description,tag.p,converter};
 	return insert_in_tuple(parameter_description,tuple_of_parameter_descriptions(otherParameters...));
 }
 
@@ -89,46 +63,27 @@ matrix metric_from_deflats(const LieGroup& G, const exvector& deflat) {
 	return g;
 }
 
-template<typename Parameters, typename ParameterType, typename GroupType>
-class PseudoRiemannianMetricParameterDescription final {
-	string name_;
-	string description_;
-	GroupType Parameters::*G;
-	unique_ptr<ParameterType> Parameters::*p_;
-public:
-	PseudoRiemannianMetricParameterDescription(string name, string description,
-			GroupType Parameters::*G, unique_ptr<ParameterType> Parameters::*p)
-		: name_{name}, description_{description}, G{G}, p_{p}
- {}
-	string name() const {return name_;}
-	string description() const {return description_;}
-	void fill(Parameters& parameters, const po::variables_map& command_line_variable_map) const {
-		if (!command_line_variable_map.count(name_)) throw MissingParameter(name_);
-		auto& variable=command_line_variable_map[name_].as<string>();
-		auto& group=*(parameters.*G);
-		auto deflat=ParseDifferentialForms(group.e(),variable.c_str());
-		parameters.*p_=make_unique<PseudoRiemannianStructureByMatrix>(&group,group.e(),metric_from_deflats(group,deflat));
-	}
-	void add_option_description(po::options_description& options) const {
-		options.add_options()(name_.c_str(), po::value<string>(),description_.c_str());
-	}
-};
-
-template<typename Parameters, typename ParameterType, typename GroupType>
+template<typename Parameters, typename ParameterType, typename RequiredParameters>
 struct pseudo_riemannian_metric_tag {
-	GroupType Parameters::*G;
 	unique_ptr<ParameterType> Parameters::*p;
+	RequiredParameters required_parameters;	//tuple of pointers-to-member for class Parameters
 };
 
-template<typename Parameters, typename ParameterType, typename GroupType>
-auto pseudo_riemannian_metric(GroupType Parameters::*G, unique_ptr<ParameterType> Parameters::*p) {
-	return pseudo_riemannian_metric_tag<Parameters,ParameterType,GroupType>{G,p};
+template<typename Parameters, typename ParameterType, typename... RequiredParameters>
+auto pseudo_riemannian_metric(unique_ptr<ParameterType> Parameters::*p,RequiredParameters... required_parameters) {
+	auto tuple=make_tuple(required_parameters...);
+	return pseudo_riemannian_metric_tag<Parameters,ParameterType,decltype(tuple)>{p,move(tuple)};
 }
 
-template<typename Parameters, typename ParameterType, typename GroupType, typename... T>
+template<typename Parameters, typename ParameterType, typename RequiredParameters, typename... T>
 auto tuple_of_parameter_descriptions(const string& name, const string& description,
-		pseudo_riemannian_metric_tag<Parameters,ParameterType,GroupType> tag,	T... otherParameters) {
-	PseudoRiemannianMetricParameterDescription<Parameters,ParameterType,GroupType> parameter_description(name,description,tag.G,tag.p);
+		pseudo_riemannian_metric_tag<Parameters,ParameterType,RequiredParameters> tag,	T... otherParameters) {
+	auto converter=[] (const string& parameter, unique_ptr<LieGroup>& G) {
+		auto deflat=ParseDifferentialForms(G->e(),parameter.c_str());
+		return make_unique<PseudoRiemannianStructureByMatrix>(G.get(),G->e(),metric_from_deflats(*G,deflat).inverse());
+	};
+	DependentParameterDescription<Parameters,ParameterType,decltype(converter),RequiredParameters> parameter_description{
+			name,description,tag.p,converter,tag.required_parameters};
 	return insert_in_tuple(parameter_description,tuple_of_parameter_descriptions(otherParameters...));
 }
 

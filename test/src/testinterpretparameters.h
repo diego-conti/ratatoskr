@@ -21,7 +21,7 @@ auto description_lie_algebra=make_parameter_description<CommandLineParameters>
 auto description=make_parameter_description<CommandLineParameters>
 (
 		"lie-algebra","Lie algebra without parameters",lie_algebra(&CommandLineParameters::G),
-		"metric", "pseudo-riemannian metric on the Lie algebra", pseudo_riemannian_metric(&CommandLineParameters::G,&CommandLineParameters::g)
+		"metric", "pseudo-riemannian metric on the Lie algebra", pseudo_riemannian_metric(&CommandLineParameters::g,&CommandLineParameters::G)
 //		"form","differential form",differential_form(&CommandLineParameters::G,&CommandLineParameters::form)
 );
 
@@ -38,13 +38,13 @@ public:
 	}
 
 	void testParseMetric() {
-		const char* (argv[]) {"program invocation", "--lie-algebra=0,0,12", "--metric=3,2,1"};
+		const char* (argv[]) {"program invocation", "--lie-algebra=0,0,12", "--metric=3,-2*2,1"};
 		int argc=std::size(argv);
 		auto parameters=description.parametersFromCommandLine(argc,argv);
 		auto& G=*(parameters.G);
 		auto& g=parameters.g->ScalarProduct();
 		TS_ASSERT_EQUALS(g.Flat(G.e(1)),G.e(3));
-		TS_ASSERT_EQUALS(g.Flat(G.e(2)),G.e(2));
+		TS_ASSERT_EQUALS(g.Flat(G.e(2)),-2*G.e(2));
 		TS_ASSERT_EQUALS(g.Flat(G.e(3)),G.e(1));
 	}
 
