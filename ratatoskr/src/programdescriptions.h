@@ -36,7 +36,7 @@ template<typename DescriptionOfCommandLineParameters, typename Program, typename
 auto tuple_of_alternative_program_descriptions(const string& command, const string& program_purpose,
 		DescriptionOfCommandLineParameters parameterDescription, Program program, T... otherPrograms) {
 	auto programDescription=make_program_description(command,program_purpose,parameterDescription,program);
-	return tuple_cat(make_tuple(programDescription),tuple_of_alternative_program_descriptions(otherPrograms...));
+	return insert_in_tuple(programDescription,tuple_of_alternative_program_descriptions(otherPrograms...));
 }
 
 template<typename TupleOfProgramDescriptionTypes>

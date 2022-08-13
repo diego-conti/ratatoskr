@@ -1,6 +1,6 @@
 #include "wedge/wedge.h"
 #include "boost/program_options.hpp"
-#include "iterateovertuple.h"
+#include "tuplecontainer.h"
 #include "errors.h"
 
 using namespace Wedge;
@@ -37,7 +37,7 @@ template<typename Parameters, typename ParameterType, typename... T>
 auto tuple_of_parameter_descriptions(const string& name, const string& description, ParameterType Parameters::*p,
 		T... otherParameters) {
 	CommandLineParameterDescription<Parameters,ParameterType> parameter_descriptions(name,description,p);
-	return tuple_cat(make_tuple(parameter_descriptions),tuple_of_parameter_descriptions(otherParameters...));
+	return insert_in_tuple(parameter_descriptions,tuple_of_parameter_descriptions(otherParameters...));
 }
 
 
