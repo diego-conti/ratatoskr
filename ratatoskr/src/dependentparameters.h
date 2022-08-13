@@ -5,7 +5,7 @@
 namespace ratatoskr {
 
 
-template<typename Parameters, typename ParameterType,typename Converter, typename RequiredParameters>
+template<typename Parameters, typename ParameterType,typename Converter, typename RequiredParameters, typename BoostParameterType=string>
 class DependentParameterDescription final {
 	string name_;
 	string description_;
@@ -13,7 +13,7 @@ class DependentParameterDescription final {
 	Converter converter;
 	RequiredParameters required_parameters;
 	void do_fill(Parameters& parameters, const po::variables_map& command_line_variable_map) const {
-		auto& text=command_line_variable_map[name_].as<string>();
+		auto& text=command_line_variable_map[name_].as<BoostParameterType>();
 		auto bind = [&parameters] (auto... pointers) {return tie(parameters.*pointers...);};
 		auto bound_required_parameters=std::apply(bind, required_parameters);
 		parameters.*p_=std::apply(converter,insert_in_tuple(text,bound_required_parameters));
@@ -36,7 +36,7 @@ public:
 		}
 	}
 	void add_option_description(po::options_description& options) const {
-		options.add_options()(name_.c_str(), po::value<string>(),description_.c_str());
+		options.add_options()(name_.c_str(), po::value<BoostParameterType>(),description_.c_str());
 	}
 };
 
@@ -48,11 +48,31 @@ struct dependent_parameter_tag {
 };
 
 
+auto tuple_of_parameter_descriptions() {
+	return make_tuple();
+}
+
+
+template<typename Parameters, typename ParameterType, typename... T>
+auto tuple_of_parameter_descriptions(const string& name, const string& description, ParameterType Parameters::*p,
+		T... otherParameters) {
+	auto identity = [] (const ParameterType& p) {return p;};
+	DependentParameterDescription<Parameters,ParameterType,decltype(identity),tuple<>,ParameterType> parameter_descriptions(name,description,p,identity,make_tuple());
+	return insert_in_tuple(parameter_descriptions,tuple_of_parameter_descriptions(otherParameters...));
+}
+
+
 template<typename Parameters, typename ParameterType, typename Converter, typename RequiredParameters, typename... T>
 auto tuple_of_parameter_descriptions(const string& name, const string& description,
 		dependent_parameter_tag<Parameters,ParameterType,Converter,RequiredParameters> tag,	T... otherParameters) {
 	DependentParameterDescription<Parameters,ParameterType,Converter,RequiredParameters> parameter_description{name,description,tag.p,tag.converter,tag.required_parameters};
 	return insert_in_tuple(parameter_description,tuple_of_parameter_descriptions(otherParameters...));
+}
+
+template<typename Parameters, typename... T>
+auto make_parameter_description(T... options) {
+	auto tuple=tuple_of_parameter_descriptions<Parameters>(options...);
+	return DescriptionOfCommandLineParameters<Parameters,decltype(tuple)>(tuple);
 }
 
 template<typename Parameters, typename ParameterType, typename Converter, typename... RequiredParameters>

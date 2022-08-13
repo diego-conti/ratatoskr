@@ -1,7 +1,7 @@
 #include <cxxtest/TestSuite.h>
 #include "test.h"
 
-#include "commandlineparameters.h"
+#include "dependentparameters.h"
 
 using namespace GiNaC;
 using namespace Wedge;
