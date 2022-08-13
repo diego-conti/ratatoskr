@@ -6,7 +6,7 @@ template<typename Parameters, typename ParameterType,typename Converter, typenam
 class DependentParameterDescription final {
 	string name_;
 	string description_;
-	unique_ptr<ParameterType> Parameters::*p_;
+	ParameterType Parameters::*p_;
 	Converter converter;
 	RequiredParameters required_parameters;
 public:
@@ -17,7 +17,7 @@ public:
 		{}
 
 	DependentParameterDescription(string name, string description,
-			unique_ptr<ParameterType> Parameters::*p, Converter& converter,const RequiredParameters& required_parameters)
+			ParameterType Parameters::*p, Converter& converter,const RequiredParameters& required_parameters)
 		: name_{name}, description_{description}, p_{p}, converter{converter}, required_parameters{required_parameters}
 		{}
 	string name() const {return name_;}
@@ -36,7 +36,7 @@ public:
 
 template<typename Parameters, typename ParameterType, typename Converter, typename RequiredParameters=tuple<>>
 struct dependent_parameter_tag {
-	unique_ptr<ParameterType> Parameters::*p;
+	ParameterType Parameters::*p;
 	Converter converter;
 	RequiredParameters required_parameters;	//tuple of pointers-to-member for class Parameters
 };
@@ -49,30 +49,9 @@ auto tuple_of_parameter_descriptions(const string& name, const string& descripti
 	return insert_in_tuple(parameter_description,tuple_of_parameter_descriptions(otherParameters...));
 }
 
-
-template<typename Parameters, typename ParameterType>
-auto lie_algebra(unique_ptr<ParameterType> Parameters::*p) {
-	auto converter=[] (const string& parameter) {
-		return make_unique<AbstractLieGroup<false>>(parameter.c_str());
-	};
-	return dependent_parameter_tag<Parameters,ParameterType,decltype(converter)>{p,move(converter)};
-}
-
-matrix metric_from_deflats(const LieGroup& G, const exvector& deflat) {
-	matrix g(G.Dimension(),G.Dimension());
-	for (int i=0;i<G.Dimension();++i)
-	for (int j=0;j<G.Dimension();++j)
-		g(i,j)=Hook(G.e()[i],deflat[j]);
-	return g;
-}
-
-template<typename Parameters, typename ParameterType, typename... RequiredParameters>
-auto pseudo_riemannian_metric(unique_ptr<ParameterType> Parameters::*p,RequiredParameters... required_parameters) {
+template<typename Parameters, typename ParameterType, typename Converter, typename... RequiredParameters>
+auto generic_converter(ParameterType Parameters::*p, Converter&& converter, RequiredParameters... required_parameters) {
 	auto tuple=make_tuple(required_parameters...);
-	auto converter=[] (const string& parameter, unique_ptr<LieGroup>& G) {
-		auto deflat=ParseDifferentialForms(G->e(),parameter.c_str());
-		return make_unique<PseudoRiemannianStructureByMatrix>(G.get(),G->e(),metric_from_deflats(*G,deflat).inverse());
-	};
-	return dependent_parameter_tag<Parameters,ParameterType,decltype(converter),decltype(tuple)>{p,move(converter),move(tuple)};
+	return dependent_parameter_tag<Parameters,ParameterType,Converter,decltype(tuple)>{p,std::forward<Converter>(converter),move(tuple)};
 }
 

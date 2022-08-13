@@ -1,7 +1,7 @@
 #include <cxxtest/TestSuite.h>
 #include "test.h"
 
-#include "interpretparameters.h"
+#include "wedgedependentparameters.h"
 
 using namespace GiNaC;
 using namespace Wedge;
@@ -18,11 +18,16 @@ auto description_lie_algebra=make_parameter_description<CommandLineParameters>
 		"lie-algebra","Lie algebra without parameters",lie_algebra(&CommandLineParameters::G)
 );
 
-auto description=make_parameter_description<CommandLineParameters>
+auto description_metric=make_parameter_description<CommandLineParameters>
 (
 		"lie-algebra","Lie algebra without parameters",lie_algebra(&CommandLineParameters::G),
 		"metric", "pseudo-riemannian metric on the Lie algebra", pseudo_riemannian_metric(&CommandLineParameters::g,&CommandLineParameters::G)
-//		"form","differential form",differential_form(&CommandLineParameters::G,&CommandLineParameters::form)
+);
+
+auto description_form=make_parameter_description<CommandLineParameters>
+(
+		"lie-algebra","Lie algebra without parameters",lie_algebra(&CommandLineParameters::G),
+		"form","differential form",differential_form(&CommandLineParameters::form,&CommandLineParameters::G)
 );
 
 class InterpretParametersTestSuite : public CxxTest::TestSuite
@@ -40,7 +45,7 @@ public:
 	void testParseMetric() {
 		const char* (argv[]) {"program invocation", "--lie-algebra=0,0,12", "--metric=3,-2*2,1"};
 		int argc=std::size(argv);
-		auto parameters=description.parametersFromCommandLine(argc,argv);
+		auto parameters=description_metric.parametersFromCommandLine(argc,argv);
 		auto& G=*(parameters.G);
 		auto& g=parameters.g->ScalarProduct();
 		TS_ASSERT_EQUALS(g.Flat(G.e(1)),G.e(3));
@@ -48,8 +53,11 @@ public:
 		TS_ASSERT_EQUALS(g.Flat(G.e(3)),G.e(1));
 	}
 
-	void testInterpret() {
-		const char* (argv[]) {"program invocation", "--lie-algebra=\"0,0,12\"", "--form=1+2*3"};
+	void testForm() {
+		const char* (argv[]) {"program invocation", "--lie-algebra=0,0,12", "--form=1+2*3"};
 		int argc=std::size(argv);
+		auto parameters=description_form.parametersFromCommandLine(argc,argv);
+		auto& G=*(parameters.G);
+		TS_ASSERT_EQUALS(parameters.form, G.e(1)+2*G.e(3));
 	}
 };
