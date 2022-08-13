@@ -1,3 +1,5 @@
+#ifndef TUPLE_CONTAINER_H
+#define TUPLE_CONTAINER_H
 #include <type_traits>
 #include <tuple>
 
@@ -15,3 +17,4 @@ template<typename T, typename Tuple>
 auto insert_in_tuple(T&& t, Tuple&& tuple) {
 	return tuple_cat(make_tuple(forward<T>(t)),forward<Tuple>(tuple));
 }
+#endif

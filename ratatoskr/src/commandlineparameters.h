@@ -1,3 +1,5 @@
+#ifndef COMMAND_LINE_PARAMETERS_H
+#define COMMAND_LINE_PARAMETERS_H
 #include "wedge/wedge.h"
 #include "boost/program_options.hpp"
 #include "tuplecontainer.h"
@@ -84,3 +86,5 @@ auto make_parameter_description(T... options) {
 	auto tuple=tuple_of_parameter_descriptions<Parameters>(options...);
 	return DescriptionOfCommandLineParameters<Parameters,decltype(tuple)>(tuple);
 }
+
+#endif
