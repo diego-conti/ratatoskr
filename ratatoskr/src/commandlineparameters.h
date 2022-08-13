@@ -5,9 +5,8 @@
 #include "tuplecontainer.h"
 #include "errors.h"
 
-using namespace Wedge;
-
 namespace po = boost::program_options;
+namespace ratatoskr {
 
 template<typename Parameters, typename ParameterType>
 class CommandLineParameterDescription final {
@@ -86,5 +85,5 @@ auto make_parameter_description(T... options) {
 	auto tuple=tuple_of_parameter_descriptions<Parameters>(options...);
 	return DescriptionOfCommandLineParameters<Parameters,decltype(tuple)>(tuple);
 }
-
+}
 #endif

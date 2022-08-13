@@ -6,7 +6,7 @@
 
 using namespace GiNaC;
 using namespace Wedge;
-
+using namespace ratatoskr;
 
 struct CommandLineParameters {
 	unique_ptr<LieGroup> G;

@@ -1,4 +1,7 @@
 #include "dependentparameters.h"
+namespace ratatoskr {
+using namespace GiNaC;
+using namespace Wedge;
 
 template<typename Parameters, typename ParameterType>
 auto lie_algebra(unique_ptr<ParameterType> Parameters::*p) {
@@ -32,7 +35,7 @@ matrix diagonal_matrix_from_strings(const vector<string>& s, const lst& symbols)
 			r(i,i)=ex{s[i],symbols};
 		}
 		catch (...) {
-			throw ::ParseError(s[i]);
+			throw ParseError(s[i]);
 		}
 	}
 	return r;
@@ -63,4 +66,5 @@ auto differential_form(ex Parameters::*p,unique_ptr<GroupType> Parameters::*G) {
 		return ParseDifferentialForm(G->e(),parameter.c_str());
 	};
 	return generic_converter(p,converter,G);
+}
 }

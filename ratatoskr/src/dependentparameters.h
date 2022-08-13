@@ -2,6 +2,7 @@
 #define DEPENDENT_PARAMETERS_H
 #include "commandlineparameters.h"
 #include <type_traits>
+namespace ratatoskr {
 
 
 template<typename Parameters, typename ParameterType,typename Converter, typename RequiredParameters>
@@ -59,5 +60,5 @@ auto generic_converter(ParameterType Parameters::*p, Converter&& converter, Requ
 	auto tuple=make_tuple(required_parameters...);
 	return dependent_parameter_tag<Parameters,ParameterType,Converter,decltype(tuple)>{p,std::forward<Converter>(converter),move(tuple)};
 }
-
+}
 #endif

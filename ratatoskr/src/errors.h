@@ -2,6 +2,7 @@
 #define ERRORS_H
 
 #include <stdexcept>
+namespace ratatoskr {
 
 class MissingParameter : public std::runtime_error {
 public:
@@ -22,4 +23,5 @@ class ParseError : public std::runtime_error {
 public:
 	ParseError(std::string error) : runtime_error{"error parsing parameter: "s+error} {}
 };
+}
 #endif

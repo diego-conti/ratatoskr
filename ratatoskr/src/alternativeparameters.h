@@ -1,5 +1,6 @@
 #include "dependentparameters.h"
 
+namespace ratatoskr {
 template<typename Parameters, typename TupleOfAlternatives>
 class AlternativeParameterDescriptions {
 	string description_;
@@ -69,4 +70,5 @@ auto alternative(const string& description, T&&... parameter_descriptions) {
 template<typename Parameters, typename TupleOfAlternatives, typename... T>
 auto tuple_of_parameter_descriptions(AlternativeParameterDescriptions<Parameters, TupleOfAlternatives> alternatives, T&&... otherParameters) {
 	return insert_in_tuple(alternatives,tuple_of_parameter_descriptions(std::forward<T>(otherParameters)...));
+}
 }

@@ -1,4 +1,5 @@
 #include "commandlineparameters.h"
+namespace ratatoskr {
 
 template<typename DescriptionOfCommandLineParameters, typename Program>
 class ProgramDescription {
@@ -81,4 +82,5 @@ template<typename... T>
 auto alternative_program_descriptions(T... programDescriptions) {
 	auto tuple=tuple_of_alternative_program_descriptions(programDescriptions...);
 	return CommandLineProgramDescriptions<decltype(tuple)>(tuple);
+}
 }
