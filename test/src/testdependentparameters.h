@@ -24,6 +24,12 @@ auto description_metric=make_parameter_description<CommandLineParameters>
 		"metric", "pseudo-riemannian metric on the Lie algebra", pseudo_riemannian_metric(&CommandLineParameters::g,&CommandLineParameters::G)
 );
 
+auto description_diagonal_metric=make_parameter_description<CommandLineParameters>
+(
+		"lie-algebra","Lie algebra without parameters",lie_algebra(&CommandLineParameters::G),
+		"metric", "pseudo-riemannian metric on the Lie algebra", diagonal_pseudo_riemannian_metric(&CommandLineParameters::g,&CommandLineParameters::G)
+);
+
 auto description_form=make_parameter_description<CommandLineParameters>
 (
 		"lie-algebra","Lie algebra without parameters",lie_algebra(&CommandLineParameters::G),
@@ -42,7 +48,7 @@ public:
 		TS_ASSERT_EQUALS(s.str(),"(0,0,2*(e1*e2))");
 	}
 
-	void testParseMetric() {
+	void testParseMetricByMusicalIsomorphism() {
 		const char* (argv[]) {"program invocation", "--lie-algebra=0,0,12", "--metric=3,-2*2,1"};
 		int argc=std::size(argv);
 		auto parameters=description_metric.parametersFromCommandLine(argc,argv);
@@ -51,6 +57,17 @@ public:
 		TS_ASSERT_EQUALS(g.Flat(G.e(1)),G.e(3));
 		TS_ASSERT_EQUALS(g.Flat(G.e(2)),-2*G.e(2));
 		TS_ASSERT_EQUALS(g.Flat(G.e(3)),G.e(1));
+	}
+
+	void testParseDiagonalMetric() {
+		const char* (argv[]) {"program invocation", "--lie-algebra=0,0,12", "--metric=""-1 -2 3"""};
+		int argc=std::size(argv);
+		auto parameters=description_diagonal_metric.parametersFromCommandLine(argc,argv);
+		auto& G=*(parameters.G);
+		auto& g=parameters.g->ScalarProduct();
+		TS_ASSERT_EQUALS(g.Flat(G.e(1)),-G.e(1));
+		TS_ASSERT_EQUALS(g.Flat(G.e(2)),-2*G.e(2));
+		TS_ASSERT_EQUALS(g.Flat(G.e(3)),3*G.e(3));
 	}
 
 	void testForm() {
