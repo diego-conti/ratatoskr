@@ -1,7 +1,7 @@
 #include <cxxtest/TestSuite.h>
 #include "test.h"
 
-#include "programdescriptions.h"
+#include "parameters/programdescriptions.h"
 
 using namespace GiNaC;
 using namespace Wedge;

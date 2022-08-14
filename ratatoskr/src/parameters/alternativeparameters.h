@@ -47,8 +47,8 @@ struct parameters_type<AlternativeParameterDescriptions<Parameters,TupleOfAltern
 	using type= Parameters;
 };
 
-template<typename Parameters, typename ParameterType,typename Converter, typename RequiredParameters>
-struct parameters_type<DependentParameterDescription<Parameters,ParameterType,Converter,RequiredParameters>> {
+template<typename Parameters, typename ParameterType,typename Converter, typename RequiredParameters, typename BoostParameterType>
+struct parameters_type<DependentParameterDescription<Parameters,ParameterType,Converter,RequiredParameters,BoostParameterType>> {
 	using type=Parameters;
 };
 

@@ -8,7 +8,7 @@ include_directories(${CMAKE_SOURCE_DIR}/ratatoskr/src)
 #set (CXXTESTFLAGS --error-printer --no-eh)
 set (CXXTESTFLAGS --error-printer)
 
-set (TESTS testcommandlineparameters testprogramdescriptions testdependentparameters testalternativeparameters)
+set (TESTS testcommandlineparameters testprogramdescriptions testdependentparameters testalternativeparameters testglobalsymbols testgeneric)
 enable_testing()
 foreach(test ${TESTS})
 	set (runner run${test}.cpp)
