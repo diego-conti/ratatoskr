@@ -13,30 +13,15 @@ auto& dereference_if_pointer_to_member(T Parameters::*p, Parameters& parameters)
 	return parameters.*p;
 }
 
-template<typename Parameters, typename ParameterType,typename Converter, typename RequiredParameters, typename BoostParameterType>
-class DependentParameterDescription final {
+template<typename Parameters>
+class OptionAndValueDescription {
 	string name_;
 	string description_;
-	ParameterType Parameters::*p_;
-	Converter converter;
-	RequiredParameters required_parameters;
-	template<class U=BoostParameterType, enable_if_t<is_void_v<U>,bool> =false>
-	void do_fill(Parameters& parameters, const po::variables_map& command_line_variable_map) const {
-		auto bind = [&parameters] (auto... pointers) {return tie(dereference_if_pointer_to_member<Parameters>(pointers,parameters)...);};
-		auto bound_required_parameters=std::apply(bind, required_parameters);
-		parameters.*p_=std::apply(converter,bound_required_parameters);
-	}
-	template<class U=BoostParameterType, enable_if_t<!is_void_v<U>,bool> =false>
-	void do_fill(Parameters& parameters, const po::variables_map& command_line_variable_map) const {
-		auto& text=command_line_variable_map[name_].as<BoostParameterType>();
-		auto bind = [&parameters] (auto... pointers) {return tie(dereference_if_pointer_to_member<Parameters>(pointers,parameters)...);};
-		auto bound_required_parameters=std::apply(bind, required_parameters);
-		parameters.*p_=std::apply(converter,insert_in_tuple(text,bound_required_parameters));
-	}
+protected:
+	virtual void do_fill(Parameters& parameters, const po::variables_map& command_line_variable_map) const=0;
 public:
-	DependentParameterDescription(string name, string description,
-			ParameterType Parameters::*p, Converter& converter,const RequiredParameters& required_parameters)
-		: name_{name}, description_{description}, p_{p}, converter{converter}, required_parameters{required_parameters}
+	OptionAndValueDescription(string name, string description)
+		: name_{name}, description_{description}
 		{}
 	string name() const {return name_;}
 	string description() const {return description_;}
@@ -50,20 +35,64 @@ public:
 			return 1;
 		}
 	}
-	template<class U=BoostParameterType, enable_if_t<is_void_v<U>,bool> =false>
-	void add_option_description(po::options_description& options) const {
-			options.add_options()(name_.c_str(), description_.c_str());
+	virtual void add_option_description(po::options_description& options) const =0;
+	virtual ~OptionAndValueDescription()=default;
+};
+
+//BoostParameterType is one of the types recognized by boost:program_options for parameters
+template<typename Parameters, typename ParameterType,typename Converter, typename RequiredParameters, typename BoostParameterType>
+class DependentParameterDescription final : public OptionAndValueDescription<Parameters> {
+	ParameterType Parameters::*p;
+	Converter converter;
+	RequiredParameters required_parameters;
+protected:
+	void do_fill(Parameters& parameters, const po::variables_map& command_line_variable_map) const override {
+		auto& text=command_line_variable_map[this->name()].template as<BoostParameterType>();
+		auto bind = [&parameters] (auto... pointers) {return tie(dereference_if_pointer_to_member<Parameters>(pointers,parameters)...);};
+		auto bound_required_parameters=std::apply(bind, required_parameters);
+		parameters.*p=std::apply(converter,insert_in_tuple(text,bound_required_parameters));
 	}
-	template<class U=BoostParameterType, enable_if_t<!is_void_v<U>,bool> =false>
-	void add_option_description(po::options_description& options) const {
-		options.add_options()(name_.c_str(), po::value<BoostParameterType>(),description_.c_str());
+public:
+	DependentParameterDescription(string name, string description,
+			ParameterType Parameters::*p, Converter& converter,const RequiredParameters& required_parameters)
+		: OptionAndValueDescription<Parameters> {name, description}, p{p}, converter{converter}, required_parameters{required_parameters}
+		{}
+		void add_option_description(po::options_description& options) const override {
+			options.add_options()(this->name().c_str(), po::value<BoostParameterType>(),this->description().c_str());
+		}
+};
+
+template<typename Parameters, typename ParameterType,typename Initializer, typename RequiredParameters>
+class OptionDescription final : public OptionAndValueDescription<Parameters> {
+	ParameterType Parameters::*p;
+	Initializer initializer;
+	RequiredParameters required_parameters;
+protected:
+	void do_fill(Parameters& parameters, const po::variables_map& command_line_variable_map) const override {
+		auto bind = [&parameters] (auto... pointers) {return tie(dereference_if_pointer_to_member<Parameters>(pointers,parameters)...);};
+		auto bound_required_parameters=std::apply(bind, required_parameters);
+		parameters.*p=std::apply(initializer,bound_required_parameters);
 	}
+public:
+	OptionDescription(string name, string description,
+			ParameterType Parameters::*p, Initializer& initializer,const RequiredParameters& required_parameters)
+		: OptionAndValueDescription<Parameters> {name, description}, p{p}, initializer{initializer}, required_parameters{required_parameters}
+		{}
+		void add_option_description(po::options_description& options) const override {
+				options.add_options()(this->name().c_str(), this->description().c_str());
+		}
 };
 
 template<typename Parameters, typename ParameterType, typename Converter, typename RequiredParameters=tuple<>,typename BoostParameterType=string>
 struct dependent_parameter_tag {
 	ParameterType Parameters::*p;
 	Converter converter;
+	RequiredParameters required_parameters;	//tuple of pointers-to-member for class Parameters
+};
+template<typename Parameters, typename ParameterType, typename Initializer, typename RequiredParameters=tuple<>>
+struct option_tag {
+	ParameterType Parameters::*p;
+	Initializer initializer;
 	RequiredParameters required_parameters;	//tuple of pointers-to-member for class Parameters
 };
 
@@ -89,6 +118,13 @@ auto tuple_of_parameter_descriptions(const string& name, const string& descripti
 	return insert_in_tuple(parameter_description,tuple_of_parameter_descriptions(otherParameters...));
 }
 
+template<typename Parameters, typename ParameterType, typename Initializer, typename RequiredParameters, typename... T>
+auto tuple_of_parameter_descriptions(const string& name, const string& description,
+		option_tag<Parameters,ParameterType,Initializer,RequiredParameters> tag,	T... otherParameters) {
+	OptionDescription<Parameters,ParameterType,Initializer,RequiredParameters> parameter_description{name,description,tag.p,tag.initializer,tag.required_parameters};
+	return insert_in_tuple(parameter_description,tuple_of_parameter_descriptions(otherParameters...));
+}
+
 template<typename Parameters, typename... T>
 auto make_parameter_description(T... options) {
 	auto tuple=tuple_of_parameter_descriptions<Parameters>(options...);
@@ -104,7 +140,7 @@ auto generic_converter(ParameterType Parameters::*p, Converter&& converter, Requ
 template<typename Parameters, typename ParameterType, typename Converter, typename... RequiredParameters>
 auto generic_option(ParameterType Parameters::*p, Converter&& converter, RequiredParameters... required_parameters) {
 	auto tuple=make_tuple(required_parameters...);
-	return dependent_parameter_tag<Parameters,ParameterType,Converter,decltype(tuple),void>{p,std::forward<Converter>(converter),move(tuple)};
+	return option_tag<Parameters,ParameterType,Converter,decltype(tuple)>{p,std::forward<Converter>(converter),move(tuple)};
 }
 }
 #endif
