@@ -2,7 +2,7 @@
 #define RATATOSKR_CONVERSIONS_H
 #include <wedge/wedge.h>
 #include "parameters/dependentparameters.h"
-#include "globalsymbols.h"
+#include "symbols.h"
 #include "expressions.h"
 #include "generic.h"
 #include "liealgebras.h"

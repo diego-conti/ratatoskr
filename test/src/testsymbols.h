@@ -13,7 +13,6 @@ struct ExParameter {
 	GlobalSymbols symbols;
 	ex x,y;
 };
-
 auto description_ex_no_symbols = make_parameter_description<ExParameter> (
 		"x", "a ginac expression without symbols", expression(&ExParameter::x),
 		"y", "a ginac expression without symbols", expression(&ExParameter::y)
@@ -21,6 +20,25 @@ auto description_ex_no_symbols = make_parameter_description<ExParameter> (
 auto description_ex_with_symbols = make_parameter_description<ExParameter> (
 		"symbol", "a predefined symbol", expression(&ExParameter::x,&ExParameter::symbols),
 		"expression", "a ginac expression with symbol", expression(&ExParameter::y,&ExParameter::symbols)
+);
+
+struct DoubleGlobalSymbolsParameters {
+	GlobalSymbols symbols;
+	GlobalSymbols symbols2;
+	ex x,y;
+};
+auto description_double=make_parameter_description<DoubleGlobalSymbolsParameters> (
+		"x", "an ex depending on global symbols", expression(&DoubleGlobalSymbolsParameters::x,&DoubleGlobalSymbolsParameters::symbols),
+		"y", "an ex depending on global symbols", expression(&DoubleGlobalSymbolsParameters::y,&DoubleGlobalSymbolsParameters::symbols2)
+);
+
+struct ManySymbolsParameters {
+	ex symbols;
+	ex x;
+};
+auto description_many_symbols = make_parameter_description<ManySymbolsParameters>(
+	"symbols", "symbols to be used in expression", new_symbols(&ManySymbolsParameters::symbols),
+	"x", "expression using symbols ", expression(&ManySymbolsParameters::x,&ManySymbolsParameters::symbols)
 );
 
 struct CommandLineParameters {
@@ -32,7 +50,7 @@ auto description=make_parameter_description<CommandLineParameters>
 		"lie-algebra","Lie algebra with parameters",lie_algebra(&CommandLineParameters::G,&CommandLineParameters::symbols)
 );
 
-class GlobalSymbolsTestSuite : public CxxTest::TestSuite
+class SymbolsTestSuite : public CxxTest::TestSuite
 {
 public:
 
@@ -57,4 +75,19 @@ public:
 		auto parameters=description_ex_with_symbols.parametersFromCommandLine(argc,argv);
 		TS_ASSERT_EQUALS(parameters.y,parameters.x+sqrt(ex(13)));
 	}
+	void testDoubleGlobalSystem() {
+		const char* (argv[]) {"program invocation", "--x=a", "--y=a"};
+		int argc=std::size(argv);
+		auto parameters=description_double.parametersFromCommandLine(argc,argv);
+		TS_ASSERT_EQUALS(parameters.x,parameters.y);
+
+	}
+	void testManySymbols(){
+		const char* (argv[]) {"program invocation", "--x=a+b", "--symbols=z", "x",  "y", "a", "b"};
+		int argc=std::size(argv);
+		auto parameters=description_many_symbols.parametersFromCommandLine(argc,argv);
+		TS_ASSERT_EQUALS(parameters.x,parameters.symbols.op(3)+parameters.symbols.op(4));
+
+	}
+
 };

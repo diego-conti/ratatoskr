@@ -88,7 +88,7 @@ Example usage:
 
 ### Parameters depending on global symbols or other parameters
 
-For programs which require introducing new symbols, `ratatoskr` enables the creation of a new symbol with a name indicated in the command line. The parameter should be described as in `new_symbol(&Parameters::x)`, which has the effect of populating the member `x` of the struct `Parameters` with a new symbol. The class of the symbolc can be optionally be specified as a template parameter, e.g. `new_symbol<realsymbol>(&Parameters::x)`. Notice that symbols should always be stored as `ex` objects in GiNaC.
+For programs which require introducing new symbols, `ratatoskr` enables the creation of a new symbol with a name indicated in the command line. The parameter should be described as in `new_symbol(&Parameters::x)`, which has the effect of populating the member `x` of the struct `Parameters` with a new symbol. The class of the symbol can be optionally be specified as a template parameter, e.g. `new_symbol<realsymbol>(&Parameters::x)`. Notice that symbols should always be _stored_ as `ex` objects, no matter what type is used to define them.
 
 For instance, the following program computes the derivative of a function of one variable.
 
@@ -112,9 +112,22 @@ Example usage:
 	$ratatoskr/ratatoskr derivative --variable=x --function=x^2
 	2 x
 
-Notice that the two-parameter version of `expression` indicates that `Parameters::variable` may appear in the expression. This means that the corresponding string will be converted to the associated symbol when parsing the command line argument.
+Notice that the two-parameter version of `expression` indicates that `function` _depends_ on the parameter `variable`. This means that the corresponding string will be converted to the associated symbol when parsing the command line argument. The general convention is that the first parameter of functions to be used in parameter descriptions such as `expressions` indicates the parameter that is being described, and the remaining parameters refer to the other parameters it may depend on.
 
-An alternative approach is to let `ratatoskr` define implicit, global symbols, and use those symbols consistently. This is done by adding an object of type `GlobalSymbols` to `Parameters`. Global symbols need to appear in the parameter description, since they are initialized implicitly. However, they may be specified as parameters in the description of other parameters, which implies that the corresponding string will be associated with fixed symbols when parsing the command line argument. Notice that if more  than one `GlobalSymbols` object is used, the symbols will only be instantiated once, and it makes no difference which `GlobalSymbols` symbol is used to access them.
+Order is important in the parameter description: any parameter should appear after every parameter it depends on, to ensure that initialization occurs in the proper order. However, order is irrelevant when invoking the program on the command line:
+
+	$ratatoskr/ratatoskr derivative --function=x^2 --variable=x
+	2 x
+
+It is also possible to define more than one symbol with a single parameter, by using `new_symbols` to declare a space-separated list of symbols, i.e.
+
+	auto parameters_description=make_parameter_description<Parameters>(
+		"variables","new variables",new_symbols(&Parameters::variables),
+	);
+
+In this example,  `Parameters::variables` should have type `lst` or `ex`.
+
+An alternative approach to defining new symbols on the command line is to let `ratatoskr` define implicit, global symbols, and use those symbols consistently. This is done by adding an object of type `GlobalSymbols` to `Parameters`. Global symbols need to appear in the parameter description, since they are initialized implicitly. However, they may be specified as parameters in the description of other parameters, which implies that the corresponding string will be associated with fixed symbols when parsing the command line argument. Notice that if more  than one `GlobalSymbols` object is used, the symbols will only be instantiated once, and it makes no difference which `GlobalSymbols` symbol is used to access them.
 
 For instance, the following program computes the partial derivative of a function of more variables. Notice that using global symbols allows the user to employ symbols which have not been specified on the command line.
 
@@ -179,6 +192,3 @@ Notice that the parameter description does not contain any entry corresponding t
 	);
 
 
-Order is important in the parameter description. For instance, to define 
-
-Order is irrelevant when invoking the program on the command line.

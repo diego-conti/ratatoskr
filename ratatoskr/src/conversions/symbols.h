@@ -30,5 +30,16 @@ auto new_symbol(ex Parameters::*p) {
 	};
 	return generic_converter(p,converter);
 }
+
+template<typename Parameters, typename SymbolClass=symbol>
+auto new_symbols(ex Parameters::*p) {
+	auto converter=[] (const vector<string>& parameter) {
+		lst result;
+		for (auto& x: parameter) result.append(ex{SymbolClass{x}});
+		return result;
+	};
+	return generic_converter<vector<string>>(p,converter);
+}
+
 }
 #endif

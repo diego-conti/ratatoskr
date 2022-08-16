@@ -1,7 +1,5 @@
 #ifndef RATATOSKR_LIE_ALGEBRAS_H
 #define RATATOSKR_LIE_ALGEBRAS_H
-#include "parameters/dependentparameters.h"
-#include "globalsymbols.h"
 namespace ratatoskr {
 using namespace GiNaC;
 using namespace Wedge;
