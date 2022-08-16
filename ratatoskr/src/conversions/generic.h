@@ -1,7 +1,5 @@
 #ifndef GENERIC_H
 #define GENERIC_H
-#include "parameters/dependentparameters.h"
-#include "globalsymbols.h"
 #include "input/pairfrom.h"
 namespace ratatoskr {
 using namespace GiNaC;

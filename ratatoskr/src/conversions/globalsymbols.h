@@ -1,6 +1,5 @@
 #ifndef GLOBAL_SYMBOLS_H
 #define GLOBAL_SYMBOLS_H
-#include <wedge/wedge.h>
 namespace ratatoskr {
 using namespace Wedge;
 

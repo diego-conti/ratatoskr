@@ -1,7 +1,8 @@
 #include <cxxtest/TestSuite.h>
 #include "test.h"
 
-#include "parameters/programdescriptions.h"
+#include "parameters/parameters.h"
+#include "conversions/conversions.h"
 
 using namespace GiNaC;
 using namespace Wedge;

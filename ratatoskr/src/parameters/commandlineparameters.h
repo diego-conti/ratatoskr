@@ -1,7 +1,5 @@
 #ifndef COMMAND_LINE_PARAMETERS_H
 #define COMMAND_LINE_PARAMETERS_H
-#include "wedge/wedge.h"
-#include "boost/program_options.hpp"
 #include "tuplecontainer.h"
 #include "errors.h"
 

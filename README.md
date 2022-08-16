@@ -40,19 +40,18 @@ A program to compute the exterior derivative of a differential form on a Lie alg
 		unique_ptr<LieGroup> G;
 		ex form;
 	};
-
 	auto parameters_description=make_parameter_description<Parameters>
 	(
 		"lie-algebra","Lie algebra without parameters",lie_algebra(&Parameters::G),
 		"form","a differential form on the Lie algebra",differential_form(&Parameters::form,&Parameters::G)
 	};
 	auto program = make_program_description(
-		"ExtDerivative", "Compute the exterior derivative of a form a on a Lie algebra",
+		"ExtDerivative", "Compute the exterior derivative of a form on a Lie algebra",
 		parameters_description, [] (Parameters& parameters) {
 			cout<<latex<<parameters.G->d(parameters.form)<<endl;
 		}
 	);
-		
+	
 
 ### Parameter type
 
@@ -61,7 +60,7 @@ Types supported by Boost Program Options can be specified in the parameter descr
 - numeric types such as `int`
 - `bool` 
 - `string`
-- `vector`'s of the above. In the actual program invpcation, vectors should be passed as space-separated lists
+- `vector`'s of the above. In the actual program invocation, vectors should be passed as space-separated lists
 
 Objects of some types introduced in Wedge can also appear in the parameter description. These types include:
 
