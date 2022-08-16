@@ -12,12 +12,18 @@ public:
 	bool match(const string& command) const {
 		return command_==command;
 	}
-	const DescriptionOfCommandLineParameters& description() {
+	const DescriptionOfCommandLineParameters& description() const {
 		return parameterDescription;
 	}
 	void run(int argc, const char** argv) const {
-		auto parameters=parameterDescription.parametersFromCommandLine(argc,argv);
-		program(parameters);
+		try {
+			auto parameters=parameterDescription.parametersFromCommandLine(argc,argv);
+			program(parameters);
+		}
+		catch (const CommandLineError& error) {
+			cerr<<error.what()<<endl;
+			cerr<<description().human_readable_description();
+		}
 	}
 	void run(int argc, char** argv) const {
 		run(argc,const_cast<const char**>(argv));

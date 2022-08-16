@@ -11,7 +11,7 @@ template<typename Parameters, typename TupleOfParameterDescriptions>
 class DescriptionOfCommandLineParameters {
 	TupleOfParameterDescriptions parameter_descriptions;
 	po::options_description description() const {
-		po::options_description options("Allowed options");
+		po::options_description options("Usage");
 		auto add_to_options_description = [&options] (auto& desc) {
 			desc.add_option_description(options);
 		};
@@ -31,10 +31,15 @@ class DescriptionOfCommandLineParameters {
 public:
 	DescriptionOfCommandLineParameters(TupleOfParameterDescriptions parameter_descriptions) : parameter_descriptions{parameter_descriptions}{}
 	Parameters parametersFromCommandLine(int argc, const char** argv) const {
-		po::variables_map vm;
-		po::store(po::parse_command_line(argc, argv, description()), vm);
-		po::notify(vm);
-		return parametersFromVariableMap(vm);
+		try {
+			po::variables_map vm;
+			po::store(po::parse_command_line(argc, argv, description()), vm);
+			po::notify(vm);
+			return parametersFromVariableMap(vm);
+		}
+		catch (const po::error& e) {
+			throw BoostError(e.what());
+		}
 	}
 	string human_readable_description() const {
 		stringstream s;

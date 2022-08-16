@@ -4,24 +4,34 @@
 #include <stdexcept>
 namespace ratatoskr {
 
-class MissingParameter : public std::runtime_error {
+class CommandLineError  : public std::runtime_error {
 public:
-	MissingParameter(std::string parametername) : runtime_error{"required parameter not indicated: "s+parametername} {}
+	using runtime_error::runtime_error;
 };
 
-class TooManyAlternatives : public std::runtime_error {
+class BoostError : public CommandLineError {
 public:
-	TooManyAlternatives(std::string parametername) : runtime_error{"parameter indicated more than once: "s+parametername} {}
+	BoostError(const char* what) : CommandLineError(what) {}
 };
 
-class InvalidParameter : public std::runtime_error {
+class MissingParameter : public CommandLineError {
 public:
-	InvalidParameter(std::string error) : runtime_error{"invalid parameter value: "s+error} {}
+	MissingParameter(const std::string& parametername) : CommandLineError{"required parameter not indicated: "s+parametername} {}
 };
 
-class ParseError : public std::runtime_error {
+class TooManyAlternatives : public CommandLineError {
 public:
-	ParseError(std::string error) : runtime_error{"error parsing parameter: "s+error} {}
+	TooManyAlternatives(const std::string& parametername) : CommandLineError{"parameter indicated more than once: "s+parametername} {}
+};
+
+class InvalidParameter : public CommandLineError {
+public:
+	InvalidParameter(const std::string& error) : CommandLineError{"invalid parameter value: "s+error} {}
+};
+
+class ParseError : public CommandLineError {
+public:
+	ParseError(const std::string& error) : CommandLineError{"error parsing parameter: "s+error} {}
 };
 }
 #endif
