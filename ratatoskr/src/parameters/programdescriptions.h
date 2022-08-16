@@ -19,6 +19,9 @@ public:
 		auto parameters=parameterDescription.parametersFromCommandLine(argc,argv);
 		program(parameters);
 	}
+	void run(int argc, char** argv) const {
+		run(argc,const_cast<const char**>(argv));
+	}
 	const char* command() const {return command_.c_str();}
 	const char* purpose() const {return program_purpose_.c_str();}
 };
@@ -34,11 +37,22 @@ auto tuple_of_alternative_program_descriptions() {
 }
 
 template<typename DescriptionOfCommandLineParameters, typename Program, typename... T>
+auto tuple_of_alternative_program_descriptions(ProgramDescription<DescriptionOfCommandLineParameters,Program>&& program_description, T... otherPrograms) {
+	return insert_in_tuple(std::move(program_description),tuple_of_alternative_program_descriptions(otherPrograms...));
+}
+
+template<typename DescriptionOfCommandLineParameters, typename Program, typename... T>
+auto tuple_of_alternative_program_descriptions(const ProgramDescription<DescriptionOfCommandLineParameters,Program>& program_description, T... otherPrograms) {
+	return insert_in_tuple(program_description,tuple_of_alternative_program_descriptions(otherPrograms...));
+}
+
+template<typename DescriptionOfCommandLineParameters, typename Program, typename... T>
 auto tuple_of_alternative_program_descriptions(const string& command, const string& program_purpose,
 		DescriptionOfCommandLineParameters parameterDescription, Program program, T... otherPrograms) {
 	auto programDescription=make_program_description(command,program_purpose,parameterDescription,program);
 	return insert_in_tuple(programDescription,tuple_of_alternative_program_descriptions(otherPrograms...));
 }
+
 
 template<typename TupleOfProgramDescriptionTypes>
 class CommandLineProgramDescriptions {
@@ -75,6 +89,9 @@ public:
 			cout<<command_description();
 			return false;
 		}
+	}
+	bool run(int argc, char** argv) const {
+		return run(argc,const_cast<const char**>(argv));
 	}
 };
 

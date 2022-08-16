@@ -3,7 +3,6 @@ project(TestRatatoskr)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 add_compile_options(-g -O0)
-include_directories(${CMAKE_SOURCE_DIR}/ratatoskr/src)
 
 #set (CXXTESTFLAGS --error-printer --no-eh)
 set (CXXTESTFLAGS --error-printer)

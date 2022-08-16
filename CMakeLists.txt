@@ -9,6 +9,7 @@ include_directories(${CXXTEST_DIR} ${CXXTEST_DIR}/cxxtest $ENV{WEDGE_PATH}/inclu
 link_libraries(wedge ginac cocoa gmp boost_program_options)
 link_directories($ENV{WEDGE_PATH}/lib)
 
+include_directories(${CMAKE_SOURCE_DIR}/ratatoskr/src)
 add_subdirectory(ratatoskr)
 add_subdirectory(test)
 
