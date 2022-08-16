@@ -2,6 +2,7 @@
 #define DEPENDENT_PARAMETERS_H
 #include "commandlineparameters.h"
 #include <type_traits>
+#include <vector>
 namespace ratatoskr {
 
 template<typename Parameters,typename T>
@@ -39,6 +40,17 @@ public:
 	virtual ~OptionAndValueDescription()=default;
 };
 
+template<typename T>
+struct BoostType {
+	static auto value() {return po::value<T>();}
+};
+
+template<typename T>
+struct BoostType<std::vector<T>> {
+	static auto value() {return po::value<std::vector<T>>()->multitoken();}
+};
+
+
 //BoostParameterType is one of the types recognized by boost:program_options for parameters
 template<typename Parameters, typename ParameterType,typename Converter, typename RequiredParameters, typename BoostParameterType>
 class DependentParameterDescription final : public OptionAndValueDescription<Parameters> {
@@ -58,7 +70,7 @@ public:
 		: OptionAndValueDescription<Parameters> {name, description}, p{p}, converter{converter}, required_parameters{required_parameters}
 		{}
 		void add_option_description(po::options_description& options) const override {
-			options.add_options()(this->name().c_str(), po::value<BoostParameterType>(),this->description().c_str());
+			options.add_options()(this->name().c_str(), BoostType<remove_cv_t<remove_reference_t<BoostParameterType>>>::value(),this->description().c_str());
 		}
 };
 
@@ -131,10 +143,10 @@ auto make_parameter_description(T... options) {
 	return DescriptionOfCommandLineParameters<Parameters,decltype(tuple)>(tuple);
 }
 
-template<typename Parameters, typename ParameterType, typename Converter, typename... RequiredParameters>
+template<typename BoostType=string,typename Parameters, typename ParameterType, typename Converter,  typename... RequiredParameters>
 auto generic_converter(ParameterType Parameters::*p, Converter&& converter, RequiredParameters... required_parameters) {
 	auto tuple=make_tuple(required_parameters...);
-	return dependent_parameter_tag<Parameters,ParameterType,Converter,decltype(tuple),string>{p,std::forward<Converter>(converter),move(tuple)};
+	return dependent_parameter_tag<Parameters,ParameterType,Converter,decltype(tuple),BoostType>{p,std::forward<Converter>(converter),move(tuple)};
 }
 
 template<typename Parameters, typename ParameterType, typename Converter, typename... RequiredParameters>

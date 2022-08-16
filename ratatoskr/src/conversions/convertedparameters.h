@@ -1,3 +1,5 @@
+#ifndef CONVERTED_PARAMETERS_H
+#define CONVERTED_PARAMETERS_H
 #include "parameters/dependentparameters.h"
 #include "globalsymbols.h"
 namespace ratatoskr {
@@ -77,3 +79,4 @@ auto differential_form(ex Parameters::*p,unique_ptr<GroupType> Parameters::*G) {
 	return generic_converter(p,converter,G);
 }
 }
+#endif
