@@ -12,7 +12,7 @@ To install, run
 	cd build
 	cmake ..
 	cmake --build .
-	cmake --install . --prefix=/where/you/want/it
+	cmake --install . --prefix=/where/you/want/it (NOT IMPLEMENTED!!!!)
 
 You may need to set the WEDGE_PATH environment variable to point to your installation of Wedge, e.g.
 
@@ -29,12 +29,10 @@ from the `build` directory.
 A program built over `ratatoskr` consists of the following elements:
 
 + A struct, usually called `Parameters`, whose instances will be populated by reading the command-line parameters
-+ A *parameter description*, obtained by invoking `make_parameter_description`, which instructs `ratatoskr` on how to populate the parameters object.
++ A *parameter description*, which instructs `ratatoskr` on how to populate the parameters object.
 + A function (or more generally, a callable object, e.g. a lambda) accepting an object of type `Parameters` and performing the actual computation.
 
-#### Examples
-
-A program to compute the exterior derivative of a differential form on a Lie algebra can be written as follows
+For instance, a program to compute the exterior derivative of a differential form on a Lie algebra can be written as follows
 
 	struct Parameters {
 		unique_ptr<LieGroup> G;
@@ -45,12 +43,17 @@ A program to compute the exterior derivative of a differential form on a Lie alg
 		"form","a differential form on the Lie algebra",differential_form(&Parameters::form,&Parameters::G)
 	};
 	auto program = make_program_description(
-		"ExtDerivative", "Compute the exterior derivative of a form on a Lie algebra",
+		"ext-derivative", "Compute the exterior derivative of a form on a Lie algebra",
 		parameters_description, [] (Parameters& parameters) {
 			cout<<latex<<parameters.G->d(parameters.form)<<endl;
 		}
 	);	
 
+More examples are available in the subdirectory `programs`. They can be tested by invoking the executable `ratatoskr`, e.g.:
+
+	$ratatoskr/ratatoskr ext-derivative --lie-algebra 0,0,12 --form 3	
+	e^{12}
+	
 ### Parameter descriptions
 
 Types supported by Boost Program Options can be specified in the parameter description by `Parameters::&parameter`. This instructs `ratatoskr` to read them directly. These types include:
@@ -60,7 +63,7 @@ Types supported by Boost Program Options can be specified in the parameter descr
 - `string`
 - `vector`'s of the above. In the actual program invocation, vectors should be passed as space-separated lists
 
-GiNaC expressions can also be specified. For expressions not including symbols, use `expression(Parameters::&parameter)`. For instance,
+GiNaC expressions can also be specified. For expressions not including symbols, use `expression(Parameters::&parameter)`. For instance, the following simple program can be used to convert between different units of measurements. The amount to convert is parsed as a floating point number, where as the conversion rate is a GiNaC expression which is allowed to be a fraction.
 
 	struct Parameters {
 		float amount;
@@ -71,19 +74,72 @@ GiNaC expressions can also be specified. For expressions not including symbols, 
 		"conversion-ratio","The conversion ratio",expression(&Parameters::conversion)
 	);
 	auto program = make_program_description(
-		"convert", "Convert to a different unit measure by applying a coefficient",
+		"convert", "Convert to a different unit of measurement by applying a coefficient",
 		parameters_description, [] (Parameters& parameters) {
 			cout<<latex<<parameters.conversion*parameters.amount<<endl;
 		}
 	);
+	
+Example usage:
+
+	$ratatoskr/ratatoskr convert --amount 12.3 --conversion-ratio 6/5
+	14.7600002288818359375
 
 
-### Parameters depending on symbols and other parameters
+### Parameters depending on global symbols or other parameters
 
+For programs which require introducing new symbols, `ratatoskr` enables the creation of a new symbol with a name indicated in the command line. The parameter should be described as in `new_symbol(&Parameters::x)`, which has the effect of populating the member `x` of the struct `Parameters` with a new symbol. The class of the symbolc can be optionally be specified as a template parameter, e.g. `new_symbol<realsymbol>(&Parameters::x)`. Notice that symbols should always be stored as `ex` objects in GiNaC.
 
+For instance, the following program computes the derivative of a function of one variable.
 
 	struct Parameters {
+		ex function;
+		ex variable;
+	};
+	auto parameters_description=make_parameter_description<Parameters>(
+		"variable","a variable",new_symbol(&Parameters::variable),
+		"function","a function of one variable",expression(&Parameters::function,&Parameters::variable)
+	);
+	auto program = make_program_description(
+		"derivative", "take the derivative of a function of one variable",
+		parameters_description, [] (Parameters& parameters) {
+			cout<<latex<<parameters.function.diff(ex_to<symbol>(parameters.variable))<<endl;
+		}
+	);
 
+Example usage:
+
+	$ratatoskr/ratatoskr derivative --variable=x --function=x^2
+	2 x
+
+Notice that the two-parameter version of `expression` indicates that `Parameters::variable` may appear in the expression. This means that the corresponding string will be converted to the associated symbol when parsing the command line argument.
+
+An alternative approach is to let `ratatoskr` define implicit, global symbols, and use those symbols consistently. This is done by adding an object of type `GlobalSymbols` to `Parameters`. Global symbols need to appear in the parameter description, since they are initialized implicitly. However, they may be specified as parameters in the description of other parameters, which implies that the corresponding string will be associated with fixed symbols when parsing the command line argument. Notice that it is theoretically possible to specify more than one `GlobalSymbols` object, but it is not a good idea to do so, since this will result in _different_ variables having the same name.
+
+For instance, the following program computes the partial derivative of a function of more variables. Notice that using global symbols allows the user to employ symbols which have not been specified on the command line.
+
+	struct Parameters {
+		GlobalSymbols symbols;
+		ex function;
+		ex variable;
+	};
+	auto parameters_description=make_parameter_description<Parameters>(
+		"variable","a variable",expression(&Parameters::variable,&Parameters::symbols),
+		"function","a function of one or more variables",expression(&Parameters::function,&Parameters::symbols)
+	);
+	auto program = make_program_description(
+		"partial-derivative", "take a partial derivative of a function of more variables",
+		parameters_description, [] (Parameters& parameters) {
+			cout<<latex<<parameters.function.diff(ex_to<symbol>(parameters.variable))<<endl;
+		}
+	);
+
+Example usage:
+
+	$ratatoskr/ratatoskr partial-derivative --variable=x --function=x^2*y
+	2 x y
+	
+	
 Objects of some types introduced in Wedge can also appear in the parameter description. These types include:
 
 - `AbstractLieGroup<false>`. This is the Wedge class for Lie groups not depending on parameters. Its description takes the form `lie_algebra(Parameters::&G)`, where `G` is a member of `Parameters` of type `unique_ptr<LieGroup>`, or possibly `unique_ptr<AbstractLieGroup<false>>`. For instance:

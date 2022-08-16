@@ -1,11 +1,11 @@
 #include "ratatoskr.h"
-#include "programs/convert.h"
+#include "programs/examples.h"
 #include "programs/extderivatives.h"
 
 using namespace ratatoskr;
 
 auto alternative_programs = alternative_program_descriptions(
-		ExtDerivative::program, Convert::program
+		ExtDerivative::program, Convert::program, Derivative::program, PartialDerivative::program
 );
 
 

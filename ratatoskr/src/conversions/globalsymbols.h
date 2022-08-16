@@ -18,5 +18,14 @@ struct GlobalSymbols {
 			N.mu,N.nu,N.xi,N.Xi,N.rho,N.pi,N.Pi,N.sigma,N.Sigma,N.tau,N.upsilon,N.Upsilon,N.phi,N.Phi,N.chi,N.psi,N.Psi,N.omega,N.Omega
 	);
 };
+
+
+template<typename Parameters, typename SymbolClass=symbol>
+auto new_symbol(ex Parameters::*p) {
+	auto converter=[] (const string& parameter) {
+		return ex{SymbolClass{parameter}};
+	};
+	return generic_converter(p,converter);
+}
 }
 #endif

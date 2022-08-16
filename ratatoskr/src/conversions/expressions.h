@@ -1,5 +1,6 @@
 #ifndef RATATOSKR_EXPRESSIONS_H
 #define RATATOSKR_EXPRESSIONS_H
+#include "input/exfromstring.h"
 namespace ratatoskr {
 using namespace GiNaC;
 using namespace Wedge;
@@ -26,6 +27,14 @@ auto expression(ex Parameters::*p) {
 		return ex{parameter,lst{}};
 	};
 	return generic_converter(p,converter);
+}
+
+template<typename Parameters>
+auto expression(ex Parameters::*p, ex Parameters::*symbols) {
+	auto converter=[] (const string& parameter, ex symbols) {
+		return ex_from_string(parameter,symbols);
+	};
+	return generic_converter(p,converter,symbols);
 }
 
 template<typename Parameters>
