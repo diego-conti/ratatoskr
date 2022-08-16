@@ -32,7 +32,7 @@ A program built over `ratatoskr` consists of the following elements:
 + A *parameter description*, obtained by invoking `make_parameter_description`, which instructs `ratatoskr` on how to populate the parameters object.
 + A function (or more generally, a callable object, e.g. a lambda) accepting an object of type `Parameters` and performing the actual computation.
 
-#### Example
+#### Examples
 
 A program to compute the exterior derivative of a differential form on a Lie algebra can be written as follows
 
@@ -40,8 +40,7 @@ A program to compute the exterior derivative of a differential form on a Lie alg
 		unique_ptr<LieGroup> G;
 		ex form;
 	};
-	auto parameters_description=make_parameter_description<Parameters>
-	(
+	auto parameters_description=make_parameter_description<Parameters>(
 		"lie-algebra","Lie algebra without parameters",lie_algebra(&Parameters::G),
 		"form","a differential form on the Lie algebra",differential_form(&Parameters::form,&Parameters::G)
 	};
@@ -50,17 +49,40 @@ A program to compute the exterior derivative of a differential form on a Lie alg
 		parameters_description, [] (Parameters& parameters) {
 			cout<<latex<<parameters.G->d(parameters.form)<<endl;
 		}
-	);
-	
+	);	
 
-### Parameter type
+### Parameter descriptions
 
 Types supported by Boost Program Options can be specified in the parameter description by `Parameters::&parameter`. This instructs `ratatoskr` to read them directly. These types include:
 
-- numeric types such as `int`
+- numeric types such as `int`, `float`, `double`
 - `bool` 
 - `string`
 - `vector`'s of the above. In the actual program invocation, vectors should be passed as space-separated lists
+
+GiNaC expressions can also be specified. For expressions not including symbols, use `expression(Parameters::&parameter)`. For instance,
+
+	struct Parameters {
+		float amount;
+		ex conversion;
+	};
+	auto parameters_description=make_parameter_description<Parameters>(
+		"amount","The amount to convert",&Parameters::amount,
+		"conversion-ratio","The conversion ratio",expression(&Parameters::conversion)
+	);
+	auto program = make_program_description(
+		"convert", "Convert to a different unit measure by applying a coefficient",
+		parameters_description, [] (Parameters& parameters) {
+			cout<<latex<<parameters.conversion*parameters.amount<<endl;
+		}
+	);
+
+
+### Parameters depending on symbols and other parameters
+
+
+
+	struct Parameters {
 
 Objects of some types introduced in Wedge can also appear in the parameter description. These types include:
 

@@ -1,6 +1,7 @@
 using namespace Wedge;
 using namespace ratatoskr;
 
+namespace ExtDerivative {
 struct Parameters {
 	unique_ptr<LieGroup> G;
 	ex form;
@@ -12,9 +13,11 @@ auto parameters_description=make_parameter_description<Parameters>
 	"form","a differential form on the Lie algebra",differential_form(&Parameters::form,&Parameters::G)
 );
 
-auto ext_derivative = make_program_description(
-	"ExtDerivative", "Compute the exterior derivative of a form a on a Lie algebra",
+auto program = make_program_description(
+	"ext-derivative", "Compute the exterior derivative of a form a on a Lie algebra",
 	parameters_description, [] (Parameters& parameters) {
 		cout<<latex<<parameters.G->d(parameters.form)<<endl;
 	}
 );
+}
+
