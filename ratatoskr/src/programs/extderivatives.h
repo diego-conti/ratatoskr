@@ -15,8 +15,8 @@ auto parameters_description=make_parameter_description<Parameters>
 
 auto program = make_program_description(
 	"ext-derivative", "Compute the exterior derivative of a form a on a Lie algebra",
-	parameters_description, [] (Parameters& parameters) {
-		cout<<latex<<parameters.G->d(parameters.form)<<endl;
+	parameters_description, [] (Parameters& parameters, ostream& os) {
+		os<<parameters.G->d(parameters.form)<<endl;
 	}
 );
 }

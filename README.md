@@ -30,7 +30,7 @@ A program built over `ratatoskr` consists of the following elements:
 
 + A struct, usually called `Parameters`, whose instances will be populated by reading the command-line parameters
 + A *parameter description*, which instructs `ratatoskr` on how to populate the parameters object.
-+ A function (or more generally, a callable object, e.g. a lambda) accepting an object of type `Parameters` and performing the actual computation.
++ A function (or more generally, a callable object, e.g. a lambda)  which performs the actual computation and generates an output. The callable should accept an object of type `Parameters` which is populated based on the command line argument and an object of type `ostream` which is used for output.
 
 For instance, a program to compute the exterior derivative of a differential form on a Lie algebra can be written as follows
 
@@ -44,16 +44,23 @@ For instance, a program to compute the exterior derivative of a differential for
 	};
 	auto program = make_program_description(
 		"ext-derivative", "Compute the exterior derivative of a form on a Lie algebra",
-		parameters_description, [] (Parameters& parameters) {
-			cout<<latex<<parameters.G->d(parameters.form)<<endl;
+		parameters_description, [] (Parameters& parameters, ostream& os) {
+			os<<parameters.G->d(parameters.form)<<endl;
 		}
 	);	
 
 More examples are available in the subdirectory `programs`. They can be tested by invoking the executable `ratatoskr`, e.g.:
 
-	$ratatoskr/ratatoskr ext-derivative --lie-algebra 0,0,12 --form 3	
+	$ratatoskr/ratatoskr ext-derivative --lie-algebra 0,0,12 --form 3
+	e1*e2
+
+or, for latex output,
+
+	$ratatoskr/ratatoskr ext-derivative --lie-algebra 0,0,12 --form 3 --latex	
 	e^{12}
-	
+
+Notice that the option `--latex` is not indicated in the parameter description. It is an implicit option available for all programs, which has the effect of instructing the program to return latex output. Future versions of `ratatoskr` may introduce more implicit options that govern output.
+
 ### Parameter descriptions
 
 A parameter description is created by invoking the template function `make_parameter_description` with a sequence of arguments of the form
@@ -85,8 +92,8 @@ As an example to illustrate the two uses, consider the following program to conv
 	);
 	auto program = make_program_description(
 		"convert", "Convert to a different unit of measurement by applying a coefficient",
-		parameters_description, [] (Parameters& parameters) {
-			cout<<latex<<parameters.conversion*parameters.amount<<endl;
+		parameters_description, [] (Parameters& parameters,ostream& os) {
+			os<<parameters.conversion*parameters.amount<<endl;
 		}
 	);
 	
@@ -112,15 +119,15 @@ For instance, the following program computes the derivative of a function of one
 	);
 	auto program = make_program_description(
 		"derivative", "take the derivative of a function of one variable",
-		parameters_description, [] (Parameters& parameters) {
-			cout<<latex<<parameters.function.diff(ex_to<symbol>(parameters.variable))<<endl;
+		parameters_description, [] (Parameters& parameters, ostream& os) {
+			os<<parameters.function.diff(ex_to<symbol>(parameters.variable))<<endl;
 		}
 	);
 
 Example usage:
 
 	$ratatoskr/ratatoskr derivative --variable=x --function=x^2
-	2 x
+	2*x
 
 Notice that the two-parameter version of `expression` indicates that `function` _depends_ on the parameter `variable`. This means that the corresponding string will be converted to the associated symbol when parsing the command line argument. The general convention is that the first parameter in a directive indicates the parameter that is being described, and the remaining parameters refer to the other parameters it may depend on.
 
@@ -152,15 +159,15 @@ For instance, the following program computes the partial derivative of a functio
 	);
 	auto program = make_program_description(
 		"partial-derivative", "take a partial derivative of a function of more variables",
-		parameters_description, [] (Parameters& parameters) {
-			cout<<latex<<parameters.function.diff(ex_to<symbol>(parameters.variable))<<endl;
+		parameters_description, [] (Parameters& parameters, ostream& os) {
+			os<<parameters.function.diff(ex_to<symbol>(parameters.variable))<<endl;
 		}
 	);
 
 Example usage:
 
 	$ratatoskr/ratatoskr partial-derivative --variable=x --function=x^2*y
-	2 x y
+	2*x*y
 
 ### Lie algebras	
 

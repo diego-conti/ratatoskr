@@ -4,12 +4,16 @@
 #include "errors.h"
 
 namespace po = boost::program_options;
+
+inline po::options_description empty_options_description() {
+	return {"Usage"};
+}
+
 namespace ratatoskr {
 template<typename Parameters, typename TupleOfParameterDescriptions>
 class DescriptionOfCommandLineParameters {
 	TupleOfParameterDescriptions parameter_descriptions;
-	po::options_description description() const {
-		po::options_description options("Usage");
+	po::options_description description(po::options_description options=empty_options_description()) const {
 		auto add_to_options_description = [&options] (auto& desc) {
 			desc.add_option_description(options);
 		};
@@ -28,10 +32,10 @@ class DescriptionOfCommandLineParameters {
 	}
 public:
 	DescriptionOfCommandLineParameters(TupleOfParameterDescriptions parameter_descriptions) : parameter_descriptions{parameter_descriptions}{}
-	Parameters parametersFromCommandLine(int argc, const char** argv) const {
+	Parameters parametersFromCommandLine(int argc, const char** argv,const po::options_description& options= empty_options_description()) const {
 		try {
 			po::variables_map vm;
-			po::store(po::parse_command_line(argc, argv, description()), vm);
+			po::store(po::parse_command_line(argc, argv, description(options)), vm);
 			po::notify(vm);
 			return parametersFromVariableMap(vm);
 		}

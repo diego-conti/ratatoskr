@@ -11,8 +11,8 @@ auto parameters_description=make_parameter_description<Parameters>(
 );
 auto program = make_program_description(
 	"convert", "Convert to a different unit of measurement by applying a coefficient",
-	parameters_description, [] (Parameters& parameters) {
-		cout<<latex<<parameters.conversion*parameters.amount<<endl;
+	parameters_description, [] (Parameters& parameters, ostream& os) {
+		os<<parameters.conversion*parameters.amount<<endl;
 	}
 );
 }
@@ -28,8 +28,8 @@ auto parameters_description=make_parameter_description<Parameters>(
 );
 auto program = make_program_description(
 	"derivative", "Take the derivative of a function of one variable",
-	parameters_description, [] (Parameters& parameters) {
-		cout<<latex<<parameters.function.diff(ex_to<symbol>(parameters.variable))<<endl;
+	parameters_description, [] (Parameters& parameters, ostream& os) {
+		os<<parameters.function.diff(ex_to<symbol>(parameters.variable))<<endl;
 	}
 );
 }
@@ -46,8 +46,8 @@ auto parameters_description=make_parameter_description<Parameters>(
 );
 auto program = make_program_description(
 	"partial-derivative", "Take a partial derivative of a function of more variables",
-	parameters_description, [] (Parameters& parameters) {
-		cout<<latex<<parameters.function.diff(ex_to<symbol>(parameters.variable))<<endl;
+	parameters_description, [] (Parameters& parameters, ostream& os) {
+		os<<parameters.function.diff(ex_to<symbol>(parameters.variable))<<endl;
 	}
 );
 }

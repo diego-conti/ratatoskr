@@ -5,6 +5,18 @@ class ProgramDescription {
 	string command_, program_purpose_;
 	DescriptionOfCommandLineParameters parameterDescription;
 	Program program;
+	static po::options_description output_options() {
+		auto options=empty_options_description();
+		options.add_options()("latex","latex output");
+		return options;
+	}
+	ostream& output_stream(int argc, const char** argv) const {
+		po::variables_map vm;
+		po::store(po::command_line_parser(argc, argv).options(output_options()).allow_unregistered().run(), vm);
+		po::notify(vm);
+		if (vm.count("latex")) cout<<latex;
+		return cout;
+	}
 public:
 	ProgramDescription(const string& command, const string& program_purpose, const DescriptionOfCommandLineParameters& desc, const Program& program)
 		: command_{command}, program_purpose_{program_purpose}, parameterDescription{desc}, program{program} {}
@@ -16,8 +28,9 @@ public:
 	}
 	void run(int argc, const char** argv) const {
 		try {
-			auto parameters=parameterDescription.parametersFromCommandLine(argc,argv);
-			program(parameters);
+			auto parameters=parameterDescription.parametersFromCommandLine(argc,argv,output_options());
+			auto& output=output_stream(argc,argv);
+			program(parameters,output);
 		}
 		catch (const CommandLineError& error) {
 			cerr<<error.what()<<endl;

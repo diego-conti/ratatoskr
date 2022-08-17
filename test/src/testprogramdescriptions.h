@@ -43,13 +43,13 @@ auto description_booleans=make_parameter_description<BoolCommandLineParameters>
 
 auto program_descriptions=alternative_program_descriptions(
 		"stringprogram", "run a test program with string parameters", description_strings,
-			[] (auto parameters) {
+			[] (auto parameters, ostream& ) {
 				TS_ASSERT_EQUALS(parameters.string_parameter1,"number1")},
 		"intprogram", "run a test program with int parameters", description_integers,
-		[] (auto parameters) {
+		[] (auto parameters, ostream&) {
 			TS_ASSERT_EQUALS(parameters.int_parameter1,-2)},
 		"boolprogram", "run a test program with bool parameters", description_booleans,
-		[] (auto parameters) {
+		[] (auto parameters, ostream&) {
 			TS_ASSERT_EQUALS(parameters.bool_parameter1,true)}
 );
 

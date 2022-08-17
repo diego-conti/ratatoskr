@@ -21,7 +21,7 @@ auto lie_algebra(unique_ptr<ParameterType> Parameters::*p, GlobalSymbols Paramet
 template<typename Parameters, typename ParameterType>
 auto lie_algebra(unique_ptr<ParameterType> Parameters::*p, ex Parameters::*symbols) {
 	auto converter=[] (const string& parameter, ex symbols) {
-		return make_unique<AbstractLieGroup<true>>(parameter,symbols.symbols);
+		return make_unique<AbstractLieGroup<true>>(parameter,symbols);
 	};
 	return generic_converter(p,converter,symbols);
 }
