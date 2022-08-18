@@ -56,8 +56,7 @@ namespace Subalgebra {
 	auto program = make_program_description(
 		"subalgebra-without-parameters", "Compute the structure constant of a Lie subalgebra",
 		parameters_description, [] (Parameters& parameters, ostream& os) {
-			parameters.H->canonical_print(os);
-			os<<endl;
+			parameters.H->canonical_print(os)<<endl;
 		}
 	);
 }
@@ -78,8 +77,7 @@ namespace SubalgebraWithParameters {
 	auto program = make_program_description(
 		"subalgebra-with-parameters", "Compute the structure constant of a Lie subalgebra",
 		parameters_description, [] (Parameters& parameters, ostream& os) {
-			parameters.H->canonical_print(os);
-			os<<endl;
+			parameters.H->canonical_print(os)<<endl;
 		}
 	);
 }

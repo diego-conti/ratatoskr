@@ -1,6 +1,6 @@
 #include "ratatoskr.h"
 #include "programs/examples.h"
-#include "programs/extderivatives.h"
+#include "programs/liealgebras.h"
 
 using namespace ratatoskr;
 
