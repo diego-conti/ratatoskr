@@ -32,3 +32,7 @@ add_test(NAME derivative_test COMMAND ratatoskr convert derivative --variable=x 
 set_tests_properties(derivative_test PROPERTIES PASS_REGULAR_EXPRESSION "2*x")
 add_test(NAME partial_derivative_test COMMAND ratatoskr partial-derivative --variable=x --function=x^2*y) 
 set_tests_properties(partial_derivative_test PROPERTIES PASS_REGULAR_EXPRESSION "2*x*y")
+add_test(NAME subalgebra_test COMMAND ratatoskr subalgebra-without-parameters --lie-algebra 0,0,12,13 --subalgebra 1,4,2,3 --latex)
+set_tests_properties(subalgebra_test PROPERTIES PASS_REGULAR_EXPRESSION "(0,e\\^{14},0,e\\^{13})")
+add_test(NAME subalgebra_with_parameters_test COMMAND ratatoskr subalgebra-with-parameters --lie-algebra 0,0,[a]*12,13 --subalgebra [a]*1,4,2,3 --latex)
+set_tests_properties(subalgebra_with_parameters_test PROPERTIES PASS_REGULAR_EXPRESSION "(0,a e\\^{14},0,a\\^2 e\\^{13})")

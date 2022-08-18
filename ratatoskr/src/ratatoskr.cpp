@@ -5,7 +5,8 @@
 using namespace ratatoskr;
 
 auto alternative_programs = alternative_program_descriptions(
-		ExtDerivative::program, Convert::program, Derivative::program, PartialDerivative::program
+		Convert::program, Derivative::program, PartialDerivative::program,
+		ExtDerivative::program, ClosedForms::program, Subalgebra::program, SubalgebraWithParameters::program
 );
 
 

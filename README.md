@@ -103,7 +103,7 @@ Example usage:
 	14.7600002288818359375
 
 
-### Parameters depending on global symbols or other parameters
+### Parameters depending on other parameters
 
 For programs which require introducing new symbols, `ratatoskr` enables the creation of a new symbol with a name indicated in the command line. The parameter should be described by the directive `new_symbol(&Parameters::x)`, which has the effect of populating the member `x` of the struct `Parameters` with a new symbol. The class of the symbol can be optionally be specified as a template parameter, e.g. `new_symbol<realsymbol>(&Parameters::x)`. Notice that symbols should always be _stored_ as `ex` objects, no matter what type is used to define them.
 
@@ -139,14 +139,16 @@ Order is important in the parameter description: any parameter should appear aft
 It is also possible to define more than one symbol with a single parameter, by using the directive `new_symbols` to describe a space-separated list of symbols, i.e.
 
 	auto parameters_description=make_parameter_description<Parameters>(
-		"variables","new variables",new_symbols(&Parameters::variables),
+		"variables","new variables",new_symbols(&Parameters::variables)
 	);
 
 In this example,  `Parameters::variables` should have type `lst` or `ex`.
 
-An alternative approach to defining new symbols on the command line is to let `ratatoskr` define implicit, global symbols, and use those symbols consistently. This is done by adding an object of type `GlobalSymbols` to `Parameters`. Global symbols need not appear in the parameter description, since they are initialized implicitly. However, they may be appear in directives describing other parameters, which implies that the corresponding string will be associated with fixed symbols when parsing the corresponding command line arguments. Notice that if more  han one `GlobalSymbols` object is used, the symbols will only be instantiated once, and it makes no difference which `GlobalSymbols` symbol is used to access them.
+## Parameters depending on global symbols
 
-For instance, the following program computes the partial derivative of a function of more variables. Notice that using global symbols allows the user to employ symbols which have not been specified on the command line.
+As an alternative to defining new symbols on the command line, one can opt to let `ratatoskr` define implicit, global symbols, and use those symbols consistently. This is done by adding an object of type `GlobalSymbols` to `Parameters`. Global symbols need not appear in the parameter description, since they are initialized implicitly. However, they may be appear in directives describing other parameters, which implies that the corresponding string will be associated with fixed symbols when parsing the corresponding command line arguments. Notice that if more  han one `GlobalSymbols` object is used, the symbols will only be instantiated once, and it makes no difference which `GlobalSymbols` symbol is used to access them.
+
+For instance, the following program computes the partial derivative of a function of several variables. Notice that using global symbols allows the user to employ symbols which have not been specified on the command line.
 
 	struct Parameters {
 		GlobalSymbols symbols;
@@ -169,6 +171,8 @@ Example usage:
 	$ratatoskr/ratatoskr partial-derivative --variable=x --function=x^2*y
 	2*x*y
 
+Global symbols that are implicitly defined currently consists of single-letter symbols, either Roman or Greek.
+
 ### Lie algebras	
 
 Lie algebras are represented in Wedge by subclasses of the abstract class `LieGroup`. Accordingly, they should be stored as pointers, i.e.
@@ -183,10 +187,32 @@ The different types of LieGroup in Wedge require different directives.
 
 - `AbstractLieGroup<false>` is the Wedge class for Lie groups not depending on parameters. Use the directive `lie_algebra(Parameters::&G)`, for instance:
 
-
-		auto description=make_parameter_description<Parameters> (
-			"lie-algebra","Lie algebra without parameters",lie_algebra(&Parameters::G)
+		struct Parameters {
+			unique_ptr<AbstractLieGroup<false>> G;
+			int p;
 		};
+		auto parameters_description=make_parameter_description<Parameters>(
+			"lie-algebra","Lie algebra without parameters",lie_algebra(&Parameters::G),
+			"p","a positive integer",&Parameters::p
+		);
+		auto program = make_program_description(
+			"closed-forms", "Compute the space of closed p-forms",
+			parameters_description, [] (Parameters& parameters, ostream& os) {
+				os<<parameters.G->ClosedForms(parameters.p)<<endl;
+			}
+		);
+
+	This defines a program to compute the closed forms on a Lie algebra without parameters. Example usage:
+	
+		$ratatoskr/ratatoskr closed-forms --lie-algebra 0,0,12 --p 2
+		Subspace:{{
+		e1*e2
+		e1*e3
+		e2*e3
+		}}
+		Complement:No elements
+	
+	To understand how the Lie algebra is encoded in the command line argument `--lie-algebra`, see [differential form parsing](#differentialforms) .
 	
 - `AbstractLieGroup<true>` is the Wedge class for Lie groups depending on parameters. Use the directive `lie_algebra(Parameters::&G, Parameters:&symbols)`, where 
 	+ `G` is a member of `Parameters` of type `unique_ptr<LieGroup>`, or possibly `unique_ptr<AbstractLieGroup<true>>`
@@ -208,27 +234,77 @@ The different types of LieGroup in Wedge require different directives.
 			ex symbols;
 			unique_ptr<LieGroup> G;
 		};
-		auto description_metric=make_parameter_description<Parameters> (
+		auto description=make_parameter_description<Parameters> (
 			"symbols", "symbols to appear in Lie algebra description", new_symbols(&Parameters::symbols),
 			"lie-algebra","Lie algebra without parameters",lie_algebra(&Parameters::G, &Parameters::symbols)
 		};
 
-- `AbstractLieSubgroup<false>`. This is the Wedge class for Lie subgroups not depending on parameters. Its description takes the form 
+- `AbstractLieSubgroup<false>`. This is the Wedge class for Lie subgroups not depending on parameters. Requires the directive
 `lie_subalgebra(&Parameters::H, &Parameters::G)`, where
 
 	- `H` is a member of `Parameters` of type `unique_ptr<LieGroup>` representing the subgroup
-	- `G` is a member of `Parameters` of type `unique_ptr<LieGroup>` representing a group
+	- `G` is a member of `Parameters` of type `unique_ptr<LieGroup>` representing a group containing H
 
-	The command-line parameter should be a comma-separated sequence of elements of the Lie algebra of `G`, representing the frame of the subalgebra. 
+	The command-line parameter should be a comma-separated sequence of elements of the Lie algebra of `G`, representing the frame of the subalgebra. For instance, a program to write the structure constants of a subgroup can be written as follows:	
+	
+	struct Parameters {
+		unique_ptr<LieGroupHasParameters<false>> G;
+		unique_ptr<LieGroupHasParameters<false>> H;
+	};
 
+	auto parameters_description=make_parameter_description<Parameters>
+	(
+		"lie-algebra","Lie algebra without parameters",lie_algebra(&Parameters::G),
+		"subalgebra","comma-separated list of generators of the subalgebra",lie_subalgebra(&Parameters::H,&Parameters::G)
+	);
+
+	auto program = make_program_description(
+		"subalgebra-without-parameters", "Compute the structure constant of a Lie subalgebra",
+		parameters_description, [] (Parameters& parameters, ostream& os) {
+			parameters.H->canonical_print(os);
+			os<<endl;
+		}
+	);
+	
+	Example usage:
+
+		$ratatoskr/ratatoskr subalgebra-without-parameters --lie-algebra 0,0,12,13 --subalgebra 1,4,2,3 --latex
+		(0,e^{14},0,e^{13})
+	
 - `AbstractLieSubgroup<true>`. This is the Wedge class for Lie subgroups depending on parameters. Its description takes the form 
 `lie_subalgebra(&Parameters::H, &Parameters::G, &Parameters::symbols)`, where
 
 	- `H` is a member of `Parameters` of type `unique_ptr<LieGroup>` representing the subgroup
-	- `G` is a member of `Parameters` of type `unique_ptr<LieGroup>` representing a group
+	- `G` is a member of `Parameters` of type `unique_ptr<LieGroup>` representing a group containing H
 	- `symbols` refers to either a `GlobalSymbols` or an `ex` of symbols generated by `new_symbols`
 
+	A version of the `subalgebra` program that uses Lie group depending on parameters can be written as follows:
+	
+	struct Parameters {
+		unique_ptr<LieGroupHasParameters<true>> G;
+		unique_ptr<LieGroupHasParameters<true>> H;
+		GlobalSymbols symbols;
+	};
 
+	auto parameters_description=make_parameter_description<Parameters>
+	(
+		"lie-algebra","Lie algebra with parameters",lie_algebra(&Parameters::G,&Parameters::symbols),
+		"subalgebra","comma-separated list of generators of the subalgebra",lie_subalgebra(&Parameters::H,&Parameters::G,&Parameters::symbols)
+	);
+
+	auto program = make_program_description(
+		"subalgebra-with-parameters", "Compute the structure constant of a Lie subalgebra",
+		parameters_description, [] (Parameters& parameters, ostream& os) {
+			parameters.H->canonical_print(os);
+			os<<endl;
+		}
+	);
+	
+	Example usage:
+	
+		$ratatoskr/ratatoskr subalgebra-with-parameters --lie-algebra 0,0,[a]*12,13 --subalgebra [a]*1,4,2,3 --latex
+		(0,a e^{14},0,a^2 e^{13})
+	
 ## Metrics
 
  `PseudoRiemannianStructureByMatrix`. This is the Wedge class for pseudo-Riemannian metrics defined by a matrix. Rather than passing each individual entry of the matrix, `ratatoskr` allows the user to pass the metric by specifing the ♭ musical isomorphism, i.e. the comma-separated sequence *e*<sub>1</sub><sup>♭</sup>, ..., *e*<sub>m</sub><sup>♭</sup>. Each *e*<sub>i</sub><sup>♭</sup> is parsed as a differential form (see [differential form parsing](#differentialforms)) relative to the coframe *e<sup>1</sup>*, ..., *e<sup>n</sup>*.
