@@ -7,7 +7,8 @@ add_compile_options(-g -O0)
 #set (CXXTESTFLAGS --error-printer --no-eh)
 set (CXXTESTFLAGS --error-printer)
 
-set (TESTS testcommandlineparameters testprogramdescriptions testdependentparameters testalternativeparameters testsymbols testgeneric)
+set (TESTS testcommandlineparameters testprogramdescriptions testdependentparameters testalternativeparameters testsymbols testgeneric
+	testpairs)
 enable_testing()
 foreach(test ${TESTS})
 	set (runner run${test}.cpp)

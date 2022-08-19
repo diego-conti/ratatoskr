@@ -122,7 +122,6 @@ auto tuple_of_parameter_descriptions(const string& name, const string& descripti
 	return insert_in_tuple(parameter_descriptions,tuple_of_parameter_descriptions(otherParameters...));
 }
 
-
 template<typename Parameters, typename ParameterType, typename Converter, typename RequiredParameters, typename BoostParameterType, typename... T>
 auto tuple_of_parameter_descriptions(const string& name, const string& description,
 		dependent_parameter_tag<Parameters,ParameterType,Converter,RequiredParameters,BoostParameterType> tag,	T... otherParameters) {
