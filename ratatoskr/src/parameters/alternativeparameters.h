@@ -29,16 +29,18 @@ public:
 		auto add_option=[&options] (auto& alternative) {alternative.add_option_description(options);};
 		iterate_over_tuple(add_option,alternatives);
 	}
-	string human_readable_description() const {
-		po::options_description options;
-		add_option_description(options);
+	string human_readable_description(int indent=0) const {
 		stringstream s;
-		s<<options;
+		s<<string(' ',indent)<<description()<<endl;
+		auto add_description = [&s,indent] (auto& desc) {
+				s<<string(' ',indent+1)<<"| "<<desc.human_readable_description()<<endl;
+			};
+		iterate_over_tuple(add_description,alternatives);
 		return s.str();
 	}
 	template<typename... T>
 	auto operator() (T&&... parameter_descriptions) const {
-		auto new_alternative=make_sequence_of_parameter_descriptions(std::forward<T>(parameter_descriptions)...);
+		auto new_alternative=make_sequence_of_parameter_descriptions<Parameters>(std::forward<T>(parameter_descriptions)...);
 		auto tuple=tuple_cat(alternatives,make_tuple(new_alternative));
 		return AlternativeParameterDescriptions<Parameters,decltype(tuple)>(description_,move(tuple));
 	}

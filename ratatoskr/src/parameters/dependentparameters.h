@@ -21,6 +21,7 @@ class OptionAndValueDescription {
 protected:
 	virtual void do_fill(Parameters& parameters, const po::variables_map& command_line_variable_map) const=0;
 public:
+	using ParametersType = Parameters;
 	OptionAndValueDescription(string name, string description)
 		: name_{name}, description_{description}
 		{}
@@ -38,8 +39,8 @@ public:
 			return 1;
 		}
 	}
-	string human_readable_description() const {
-		return "--"s+name() + "\t"s+description();
+	string human_readable_description(int indent=0) const {
+		return string(' ',indent)+"--"s+name() + "\t"s+description();
 	}
 	virtual void add_option_description(po::options_description& options) const =0;
 	virtual ~OptionAndValueDescription()=default;

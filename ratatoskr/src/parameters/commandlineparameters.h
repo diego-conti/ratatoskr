@@ -32,12 +32,14 @@ public:
 		auto add_to_options_description = [&options] (auto& desc) {
 			desc.add_option_description(options);
 		};
-
 		iterate_over_tuple(add_to_options_description,parameter_descriptions);
 	}
-	string human_readable_description() const {
+	string human_readable_description(int indent=0) const {
 		stringstream s;
-		s<<description();
+		auto add_description = [&s,indent] (auto& desc) {
+				s<<desc.human_readable_description(indent+1)<<endl;
+			};
+		iterate_over_tuple(add_description,parameter_descriptions);
 		return s.str();
 	}
 	virtual ~SequenceOfParameterDescriptions()=default;
