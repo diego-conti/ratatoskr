@@ -38,7 +38,8 @@ public:
 	}
 	template<typename... T>
 	auto operator() (T&&... parameter_descriptions) const {
-		auto tuple=tuple_cat(alternatives,tuple_of_parameter_descriptions(std::forward<T>(parameter_descriptions)...));
+		auto new_alternative=make_sequence_of_parameter_descriptions(std::forward<T>(parameter_descriptions)...);
+		auto tuple=tuple_cat(alternatives,make_tuple(new_alternative));
 		return AlternativeParameterDescriptions<Parameters,decltype(tuple)>(description_,move(tuple));
 	}
 };
@@ -65,13 +66,6 @@ struct parameters_type<tuple<T,U...>> {
 
 template<typename T>
 using parameters_t=typename parameters_type<T>::type;
-
-template<typename... T>
-auto alternative(const string& description, T&&... parameter_descriptions) {
-	auto alternatives=tuple_of_parameter_descriptions(std::forward<T>(parameter_descriptions)...);
-	using Parameters=parameters_t<decltype(alternatives)>;
-	return AlternativeParameterDescriptions<Parameters,decltype(alternatives)>(description,std::move(alternatives));
-}
 
 template<typename Parameters, typename TupleOfAlternatives, typename... T>
 auto tuple_of_parameter_descriptions(AlternativeParameterDescriptions<Parameters, TupleOfAlternatives> alternatives, T&&... otherParameters) {

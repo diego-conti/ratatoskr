@@ -14,7 +14,7 @@ auto metric_by_on_coframe(unique_ptr<ParameterType> Parameters::*p,unique_ptr<Gr
 	return generic_converter(p,converter,G,signature);
 }
 
-matrix metric_from_deflats(const LieGroup& G, const exvector& deflat) {
+matrix metric_from_eflats(const LieGroup& G, const exvector& deflat) {
 	matrix g(G.Dimension(),G.Dimension());
 	for (int i=0;i<G.Dimension();++i)
 	for (int j=0;j<G.Dimension();++j)
@@ -23,10 +23,10 @@ matrix metric_from_deflats(const LieGroup& G, const exvector& deflat) {
 }
 
 template<typename Parameters, typename ParameterType, typename GroupType>
-auto pseudo_riemannian_metric(unique_ptr<ParameterType> Parameters::*p,unique_ptr<GroupType> Parameters::*G) {
+auto metric_by_flat(unique_ptr<ParameterType> Parameters::*p,unique_ptr<GroupType> Parameters::*G) {
 	auto converter=[] (const string& parameter, unique_ptr<LieGroup>& G) {
 		auto deflat=ParseDifferentialForms(G->e(),parameter.c_str());
-		return make_unique<PseudoRiemannianStructureByMatrix>(G.get(),G->e(),metric_from_deflats(*G,deflat).inverse());
+		return make_unique<PseudoRiemannianStructureByMatrix>(G.get(),G->e(),metric_from_eflats(*G,deflat).inverse());
 	};
 	return generic_converter(p,converter,G);
 }

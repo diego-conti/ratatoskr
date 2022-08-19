@@ -23,7 +23,7 @@ auto description_lie_algebra=make_parameter_description<CommandLineParameters>
 auto description_metric=make_parameter_description<CommandLineParameters>
 (
 		"lie-algebra","Lie algebra without parameters",lie_algebra(&CommandLineParameters::G),
-		"metric", "pseudo-riemannian metric on the Lie algebra", pseudo_riemannian_metric(&CommandLineParameters::g,&CommandLineParameters::G)
+		"metric", "pseudo-riemannian metric on the Lie algebra", metric_by_flat(&CommandLineParameters::g,&CommandLineParameters::G)
 );
 
 auto description_diagonal_metric=make_parameter_description<CommandLineParameters>

@@ -147,6 +147,12 @@ auto make_parameter_description(T... options) {
 	return DescriptionOfCommandLineParameters<Parameters,decltype(tuple)>(tuple);
 }
 
+template<typename Parameters, typename... T>
+auto make_sequence_of_parameter_descriptions(T... options) {
+	auto tuple=tuple_of_parameter_descriptions<Parameters>(options...);
+	return SequenceOfParameterDescriptions<Parameters,decltype(tuple)>(tuple);
+}
+
 template<typename BoostType=string,typename Parameters, typename ParameterType, typename Converter,  typename... RequiredParameters>
 auto generic_converter(ParameterType Parameters::*p, Converter&& converter, RequiredParameters... required_parameters) {
 	auto tuple=make_tuple(required_parameters...);

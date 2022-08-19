@@ -352,24 +352,22 @@ For instance, we have seen that pseudo-Riemannian structures can be specified in
 
 	auto parameters_description=make_parameter_description<Parameters> (
 		"lie-algebra","Lie algebra without parameters",lie_algebra(&Parameters::G),
-		alternative (
-			"signature", "signature (p,q)", comma-separated-pair(&Parameters::signature),
-			"metric-by-on-coframe","metric defined by a comma-separated list of elements of an orthonormal coframe"
+		alternative<Parameters>("pseudo-riemannian metric")(
+			"signature", "signature (p,q)", comma_separated_pair(&Parameters::signature),
+			"metric-by-on-coframe","metric defined by a comma-separated list of elements of an orthonormal coframe", metric_by_on_coframe(&Parameters::g,&Parameters::G,&Parameters::signature)
 		)(
-			metric_by_on_coframe(&Parameters::g,&Parameters::G,&Parameters::signature)
-			"metric-by-flat", "metric defined by a comma-separated list of images of frame elements under flat isomorphism", metric_by_flat(&Parameters::g,&Parameters::G
+			"metric-by-flat", "metric defined by a comma-separated list of images of frame elements under flat isomorphism", metric_by_flat(&Parameters::g,&Parameters::G)
 		)
 	);
 	auto program = make_program_description(
 		"curvature", "Compute the curvature of a pseudo-Riemannian metric on a Lie algebra",
 		parameters_description, [] (Parameters& parameters, ostream& os) {
 			parameters.G->canonical_print(os)<<endl;
-			LeviCivitaConnection<true> omega(parameters.G.get(),parameters.g.get());
-			os<<omega.CurvatureForm()<<endl;
-			os<<omega.RicciAsMatrix()<<endl;
+			PseudoLeviCivitaConnection omega(parameters.G.get(),*parameters.g);
+			os<<"Curvature="<<omega.CurvatureForm()<<endl;
+			os<<"Ricci tensor="<<omega.RicciAsMatrix()<<endl;
 		}
 	);
-	
 	Example usage:
 	
 		$ratatoskr/ratatoskr curvature --lie-algebra 0,0,12  --signature=2,1 --metric-by-on-coframe 1,2,3 --latex
