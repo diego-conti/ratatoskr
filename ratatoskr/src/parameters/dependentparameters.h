@@ -26,15 +26,20 @@ public:
 		{}
 	string name() const {return name_;}
 	string description() const {return description_;}
-	void fill(Parameters& parameters, const po::variables_map& command_line_variable_map) const {
-		if (!fill_optional(parameters,command_line_variable_map)) throw MissingParameter(name_);
-	}
-	int fill_optional(Parameters& parameters, const po::variables_map& command_line_variable_map) const {
-		if (!command_line_variable_map.count(name_)) return 0;
+	int fill(Parameters& parameters, int argc, const char** argv) const {
+		po::variables_map vm;
+		po::options_description options;
+		add_option_description(options);
+		po::store(po::command_line_parser(argc, argv).options(options).allow_unregistered().run(), vm);
+		po::notify(vm);
+		if (!vm.count(name_)) return 0;
 		else {
-			do_fill(parameters,command_line_variable_map);
+			do_fill(parameters,vm);
 			return 1;
 		}
+	}
+	string human_readable_description() const {
+		return "--"s+name() + "\t"s+description();
 	}
 	virtual void add_option_description(po::options_description& options) const =0;
 	virtual ~OptionAndValueDescription()=default;
@@ -69,9 +74,9 @@ public:
 			ParameterType Parameters::*p, Converter& converter,const RequiredParameters& required_parameters)
 		: OptionAndValueDescription<Parameters> {name, description}, p{p}, converter{converter}, required_parameters{required_parameters}
 		{}
-		void add_option_description(po::options_description& options) const override {
-			options.add_options()(this->name().c_str(), BoostType<remove_cv_t<remove_reference_t<BoostParameterType>>>::value(),this->description().c_str());
-		}
+	void add_option_description(po::options_description& options) const override {
+		options.add_options()(this->name().c_str(), BoostType<remove_cv_t<remove_reference_t<BoostParameterType>>>::value(),this->description().c_str());
+	}
 };
 
 template<typename Parameters, typename ParameterType,typename Initializer, typename RequiredParameters>

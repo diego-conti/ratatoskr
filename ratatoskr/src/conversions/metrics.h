@@ -7,7 +7,7 @@ using namespace Wedge;
 template<typename Parameters, typename ParameterType, typename GroupType>
 auto metric_by_on_coframe(unique_ptr<ParameterType> Parameters::*p,unique_ptr<GroupType> Parameters::*G,pair<int,int> Parameters::*signature) {
 	auto converter=[] (const string& parameter, unique_ptr<LieGroup>& G, pair<int,int> signature) {
-		if (signature.first+signature.second!=G->Dimension()) throw ConversionError("signature should be a pair of nonnegative integers summing to the dimension");
+		if (signature.first<0 || signature.second<0 || signature.first+signature.second!=G->Dimension()) throw ConversionError("signature should be a pair of nonnegative integers summing to the dimension");
 		auto on_coframe=ParseDifferentialForms(G->e(),parameter.c_str());
 		return make_unique<StandardPseudoRiemannianStructure>(G.get(),on_coframe, signature.first);
 	};

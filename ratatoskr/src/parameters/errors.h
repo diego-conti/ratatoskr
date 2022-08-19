@@ -16,12 +16,13 @@ public:
 
 class MissingParameter : public CommandLineError {
 public:
-	MissingParameter(const std::string& parametername) : CommandLineError{"required parameter not indicated: "s+parametername} {}
+	MissingParameter(const std::string& parametername) : CommandLineError{"required parameter not specified: "s+parametername} {}
+	MissingParameter() : CommandLineError{"Not all required parameters have been specified"} {}
 };
 
 class TooManyAlternatives : public CommandLineError {
 public:
-	TooManyAlternatives(const std::string& parametername) : CommandLineError{"parameter indicated more than once: "s+parametername} {}
+	TooManyAlternatives(const std::string& parametername) : CommandLineError{"parameter specified more than once: "s+parametername} {}
 };
 
 class InvalidParameter : public CommandLineError {

@@ -29,7 +29,7 @@ add_test(NAME ext_derivative_test_latex COMMAND ratatoskr ext-derivative --lie-a
 set_tests_properties(ext_derivative_test_latex PROPERTIES PASS_REGULAR_EXPRESSION "e\\^{12}")
 add_test(NAME convert_test COMMAND ratatoskr convert --amount 10 --conversion-ratio 6/5) 
 set_tests_properties(convert_test PROPERTIES PASS_REGULAR_EXPRESSION "12")
-add_test(NAME derivative_test COMMAND ratatoskr convert derivative --variable=x --function=x^2)
+add_test(NAME derivative_test COMMAND ratatoskr derivative --variable=x --function=x^2)
 set_tests_properties(derivative_test PROPERTIES PASS_REGULAR_EXPRESSION "2*x")
 add_test(NAME partial_derivative_test COMMAND ratatoskr partial-derivative --variable=x --function=x^2*y) 
 set_tests_properties(partial_derivative_test PROPERTIES PASS_REGULAR_EXPRESSION "2*x*y")

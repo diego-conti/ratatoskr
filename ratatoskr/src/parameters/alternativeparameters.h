@@ -2,36 +2,44 @@ namespace ratatoskr {
 template<typename Parameters, typename TupleOfAlternatives>
 class AlternativeParameterDescriptions {
 	string description_;
-	TupleOfAlternatives alternatives;;
+	TupleOfAlternatives alternatives;
 public:
 	AlternativeParameterDescriptions(const string& description,TupleOfAlternatives&& alternatives) :
 		description_{description}, alternatives{std::forward<TupleOfAlternatives>(alternatives)}
 	{}
 	string name() const {return "[alternatives]";}
 	string description() const {return description_;}
-	void fill(Parameters& parameters, const po::variables_map& command_line_variable_map) const {
-		auto count=fill_optional(parameters,command_line_variable_map);
-		if (count>1) throw TooManyAlternatives(description_);
-		else if (count==0) throw MissingParameter(description_);
-	}
-	int fill_optional(Parameters& parameters, const po::variables_map& command_line_variable_map) const {
+	int fill(Parameters& parameters, int argc, const char** argv) const {
 		int count=0;
-		auto fill_if_present=[&parameters,&command_line_variable_map,&count] (auto& desc) {
-			count+=desc.fill_optional(parameters,command_line_variable_map);
+		auto fill_if_present=[&parameters,argc,argv,&count] (auto& desc) {
+			count+=desc.fill(parameters,argc,argv);
 		};
 		iterate_over_tuple(fill_if_present,alternatives);
+		if (count>1) throw TooManyAlternatives(description_);
 		return count;
 	}
 	void add_option_description(po::options_description& options) const {
 		stringstream s;
-		auto print_to_s=[&s] (auto& desc) {
-			if (!s.str().empty()) s<<'|';
-			s<<desc.name();
+		auto print_to_s=[&s] (auto& alternative) {
+			if (!s.str().empty()) s<<" or "<<endl;
+			s<<alternative.human_readable_description();
 		};
 		iterate_over_tuple(print_to_s,alternatives);
 		options.add_options()(s.str().c_str(),description_.c_str());	//add a dummy option to tell the user that one of the alternatives must be indicated
-		auto add_option=[&options] (auto& desc) {desc.add_option_description(options);};
+		auto add_option=[&options] (auto& alternative) {alternative.add_option_description(options);};
 		iterate_over_tuple(add_option,alternatives);
+	}
+	string human_readable_description() const {
+		po::options_description options;
+		add_option_description(options);
+		stringstream s;
+		s<<options;
+		return s.str();
+	}
+	template<typename... T>
+	auto operator() (T&&... parameter_descriptions) const {
+		auto tuple=tuple_cat(alternatives,tuple_of_parameter_descriptions(std::forward<T>(parameter_descriptions)...));
+		return AlternativeParameterDescriptions<Parameters,decltype(tuple)>(description_,move(tuple));
 	}
 };
 
@@ -69,4 +77,12 @@ template<typename Parameters, typename TupleOfAlternatives, typename... T>
 auto tuple_of_parameter_descriptions(AlternativeParameterDescriptions<Parameters, TupleOfAlternatives> alternatives, T&&... otherParameters) {
 	return insert_in_tuple(alternatives,tuple_of_parameter_descriptions(std::forward<T>(otherParameters)...));
 }
+
+template<typename Parameters>
+auto alternative(const string& description) {
+	return AlternativeParameterDescriptions<Parameters,tuple<>>(description,make_tuple());
+}
+
+
+
 }

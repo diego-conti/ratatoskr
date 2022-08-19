@@ -28,7 +28,7 @@ public:
 	}
 	void run(int argc, const char** argv) const {
 		try {
-			auto parameters=parameterDescription.parametersFromCommandLine(argc,argv,output_options());
+			auto parameters=parameterDescription.parametersFromCommandLine(argc,argv);
 			auto& output=output_stream(argc,argv);
 			program(parameters,output);
 		}
