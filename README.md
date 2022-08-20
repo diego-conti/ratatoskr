@@ -38,7 +38,7 @@ For instance, a program to compute the exterior derivative of a differential for
 		unique_ptr<LieGroup> G;
 		ex form;
 	};
-	auto parameters_description=make_parameter_description<Parameters>(
+	auto parameters_description=make_parameter_description(
 		"lie-algebra","Lie algebra without parameters",lie_algebra(&Parameters::G),
 		"form","a differential form on the Lie algebra",differential_form(&Parameters::form,&Parameters::G)
 	};
@@ -86,7 +86,7 @@ As an example to illustrate the two uses, consider the following program to conv
 		float amount;
 		ex conversion;
 	};
-	auto parameters_description=make_parameter_description<Parameters>(
+	auto parameters_description=make_parameter_description(
 		"amount","The amount to convert",&Parameters::amount,
 		"conversion-ratio","The conversion ratio",expression(&Parameters::conversion)
 	);
@@ -111,7 +111,7 @@ For instance, the following program computes the derivative of a function of one
 		ex function;
 		ex variable;
 	};
-	auto parameters_description=make_parameter_description<Parameters>(
+	auto parameters_description=make_parameter_description(
 		"variable","a variable",new_symbol(&Parameters::variable),
 		"function","a function of one variable",expression(&Parameters::function,&Parameters::variable)
 	);
@@ -136,7 +136,7 @@ Order is important in the parameter description: any parameter should appear aft
 
 It is also possible to define more than one symbol with a single parameter, by using the directive `new_symbols` to describe a space-separated list of symbols, i.e.
 
-	auto parameters_description=make_parameter_description<Parameters>(
+	auto parameters_description=make_parameter_description(
 		"variables","new variables",new_symbols(&Parameters::variables)
 	);
 
@@ -153,7 +153,7 @@ For instance, the following program computes the partial derivative of a functio
 		ex function;
 		ex variable;
 	};
-	auto parameters_description=make_parameter_description<Parameters>(
+	auto parameters_description=make_parameter_description(
 		"variable","a variable",expression(&Parameters::variable,&Parameters::symbols),
 		"function","a function of one or more variables",expression(&Parameters::function,&Parameters::symbols)
 	);
@@ -189,7 +189,7 @@ The different types of LieGroup in Wedge require different directives.
 			unique_ptr<AbstractLieGroup<false>> G;
 			int p;
 		};
-		auto parameters_description=make_parameter_description<Parameters>(
+		auto parameters_description=make_parameter_description(
 			"lie-algebra","Lie algebra without parameters",lie_algebra(&Parameters::G),
 			"p","a positive integer",&Parameters::p
 		);
@@ -222,7 +222,7 @@ The different types of LieGroup in Wedge require different directives.
 			GlobalSymbols symbols;
 			unique_ptr<LieGroup> G;
 		};
-		auto description=make_parameter_description<Parameters> (
+		auto description=make_parameter_description (
 			"lie-algebra","Lie algebra with parameters",lie_algebra(&Parameters::G, &Parameters::symbols)
 		};
 
@@ -232,7 +232,7 @@ The different types of LieGroup in Wedge require different directives.
 			ex symbols;
 			unique_ptr<LieGroup> G;
 		};
-		auto description=make_parameter_description<Parameters> (
+		auto description=make_parameter_description (
 			"symbols", "symbols to appear in Lie algebra description", new_symbols(&Parameters::symbols),
 			"lie-algebra","Lie algebra without parameters",lie_algebra(&Parameters::G, &Parameters::symbols)
 		};
@@ -250,7 +250,7 @@ The different types of LieGroup in Wedge require different directives.
 		unique_ptr<LieGroupHasParameters<false>> H;
 	};
 
-	auto parameters_description=make_parameter_description<Parameters>
+	auto parameters_description=make_parameter_description
 	(
 		"lie-algebra","Lie algebra without parameters",lie_algebra(&Parameters::G),
 		"subalgebra","comma-separated list of generators of the subalgebra",lie_subalgebra(&Parameters::H,&Parameters::G)
@@ -284,7 +284,7 @@ The different types of LieGroup in Wedge require different directives.
 		GlobalSymbols symbols;
 	};
 
-	auto parameters_description=make_parameter_description<Parameters>
+	auto parameters_description=make_parameter_description
 	(
 		"lie-algebra","Lie algebra with parameters",lie_algebra(&Parameters::G,&Parameters::symbols),
 		"subalgebra","comma-separated list of generators of the subalgebra",lie_subalgebra(&Parameters::H,&Parameters::G,&Parameters::symbols)
@@ -315,7 +315,7 @@ There are two main classes used in Wedge to define a metric.
 		pair<int,int> signature;
 	};
 
-	auto parameters_description=make_parameter_description<Parameters> (
+	auto parameters_description=make_parameter_description (
 		"lie-algebra","Lie algebra without parameters",lie_algebra(&Parameters::G),
 		"signature", "signature (p,q)", &Parameters::signature
 		"metric-by-on-coframe","metric defined by a comma-separated list of elements of an orthonormal coframe",metric_by_on_coframe(&Parameters::g,&Parameters::G,&Parameters::signature)
@@ -330,7 +330,7 @@ There are two main classes used in Wedge to define a metric.
 		pair<int,int> signature;
 	};
 
-	auto parameters_description=make_parameter_description<Parameters> (
+	auto parameters_description=make_parameter_description (
 		"lie-algebra","Lie algebra without parameters",lie_algebra(&Parameters::G),
 		"metric-by-flat","metric defined by a comma-separated list of images of frame elements under flat isomorphism",metric_by_flat(&Parameters::g,&Parameters::G)
 	);
@@ -350,9 +350,9 @@ For instance, we have seen that pseudo-Riemannian structures can be specified in
 		pair<int,int> signature;
 	};
 
-	auto parameters_description=make_parameter_description<Parameters> (
+	auto parameters_description=make_parameter_description (
 		"lie-algebra","Lie algebra without parameters",lie_algebra(&Parameters::G),
-		alternative<Parameters>("pseudo-riemannian metric")(
+		alternative("pseudo-riemannian metric")(
 			"signature", "signature (p,q)", comma_separated_pair(&Parameters::signature),
 			"metric-by-on-coframe","metric defined by a comma-separated list of elements of an orthonormal coframe", metric_by_on_coframe(&Parameters::g,&Parameters::G,&Parameters::signature)
 		)(
