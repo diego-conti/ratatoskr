@@ -6,19 +6,18 @@
 
 `ratatoskr` requires [cmake](https://cmake.org/) and [Wedge](https://github.com/diego-conti/wedge)
 
-To install, run
+To build, run
 
 	mkdir build
 	cd build
 	cmake ..
 	cmake --build .
-	cmake --install . --prefix=/where/you/want/it (NOT IMPLEMENTED!!!!)
 
 You may need to set the WEDGE_PATH environment variable to point to your installation of Wedge, e.g.
 
 	export WEDGE_PATH=/home/user/wedge
 	
-You can run some tests may be run by executing
+You can run some tests by executing
 
 	ctest --test-dir test
 
@@ -80,7 +79,7 @@ The third argument instructs `ratatoskr` on how the parameter should be populate
 
 - Other types not supported by Boost Program Options can be specified by the use of a _directive_. For instance, a comma-separated pair of integers can be specified by the directive `comma_separated_pair(Parameters::&parameters)`; a GiNaC expression not including symbols can be described by the directive `expression(Parameters::&parameter)`. 
 
-As an example to illustrate the two uses, consider the following program to convert between different units of measurements. The amount to convert is parsed as a floating point number, where as the conversion rate is a GiNaC expression which is allowed to be a fraction.
+As an example to illustrate the two uses, consider the following program to convert between different units of measurements. The amount to convert is parsed as a floating point number, whereas the conversion rate is a GiNaC expression which is allowed to be a fraction.
 
 	struct Parameters {
 		float amount;

@@ -1,15 +1,16 @@
 namespace ratatoskr {
 
+inline po::options_description output_options() {
+	po::options_description options;
+	options.add_options()("latex","latex output");
+	return options;
+}
+
 template<typename DescriptionOfCommandLineParameters, typename Program>
 class ProgramDescription {
 	string command_, program_purpose_;
 	DescriptionOfCommandLineParameters parameterDescription;
 	Program program;
-	static po::options_description output_options() {
-		po::options_description options;
-		options.add_options()("latex","latex output");
-		return options;
-	}
 	ostream& output_stream(int argc, const char** argv) const {
 		po::variables_map vm;
 		po::store(po::command_line_parser(argc, argv).options(output_options()).allow_unregistered().run(), vm);
@@ -74,11 +75,14 @@ class CommandLineProgramDescriptions {
 	TupleOfProgramDescriptionTypes programDescriptions;
 	string command_description() const {
 		stringstream commands;
-		commands<<"Allowed commands"<<endl;
+		commands<<"Allowed commands:"<<endl;
 		auto add_to_command_description = [&commands] (auto& desc) {
 			commands<<desc.command()<<'\t'<<desc.purpose()<<endl;
 		};
 		iterate_over_tuple(add_to_command_description,programDescriptions);
+		commands<<endl;
+		commands<<"Global options:"<<endl;
+		commands<<output_options();
 		return commands.str();
 	}
 	bool run_matching_program(const string& command, int argc, const char** argv) const {
