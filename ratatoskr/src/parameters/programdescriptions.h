@@ -6,7 +6,7 @@ class ProgramDescription {
 	DescriptionOfCommandLineParameters parameterDescription;
 	Program program;
 	static po::options_description output_options() {
-		auto options=empty_options_description();
+		po::options_description options;
 		options.add_options()("latex","latex output");
 		return options;
 	}
@@ -23,9 +23,6 @@ public:
 	bool match(const string& command) const {
 		return command_==command;
 	}
-	const DescriptionOfCommandLineParameters& description() const {
-		return parameterDescription;
-	}
 	void run(int argc, const char** argv) const {
 		try {
 			auto parameters=parameterDescription.parametersFromCommandLine(argc,argv);
@@ -34,7 +31,7 @@ public:
 		}
 		catch (const CommandLineError& error) {
 			cerr<<error.what()<<endl;
-			cerr<<description().human_readable_description();
+			cerr<<parameterDescription.human_readable_description();
 		}
 	}
 	void run(int argc, char** argv) const {

@@ -5,9 +5,6 @@
 
 namespace po = boost::program_options;
 
-inline po::options_description empty_options_description() {
-	return {"Usage"};
-}
 
 namespace ratatoskr {
 template<typename TupleOfParameterDescriptions,typename Parameters>

@@ -7,8 +7,6 @@ public:
 	AlternativeParameterDescriptions(const string& description,TupleOfAlternatives&& alternatives) :
 		description_{description}, alternatives{std::forward<TupleOfAlternatives>(alternatives)}
 	{}
-	string name() const {return "[alternatives]";}
-	string description() const {return description_;}
 	int fill(Parameters& parameters, int argc, const char** argv) const {
 		int count=0;
 		auto fill_if_present=[&parameters,argc,argv,&count] (auto& desc) {
@@ -20,8 +18,8 @@ public:
 	}
 	string human_readable_description(int indent=0) const {
 		stringstream s;
-		s<<string(indent,' ')<<description()<<endl;
-		auto line_sep=string(indent+1,' ')+'+'+string(description().size()-2,'-');
+		s<<string(indent,' ')<<description_<<endl;
+		auto line_sep=string(indent+1,' ')+'+'+string(description_.size()-2,'-');
 		s<<line_sep<<endl;
 		auto add_description = [&s,indent,line_sep] (auto& desc) {
 				s<<desc.human_readable_description(indent+1);
