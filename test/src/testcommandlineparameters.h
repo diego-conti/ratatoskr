@@ -45,7 +45,7 @@ public:
 
 		TS_ASSERT(s.find("--param1 arg")<s.find("first parameter"));
 		TS_ASSERT(s.find("--param2 arg")<s.find("second parameter"));
-		TS_ASSERT(s.find("--param1 arg")<s.find("--param2 argr"));
+		TS_ASSERT(s.find("--param1 arg")<s.find("--param2 arg"));
 
 		s=description_integers.human_readable_description();
 		TS_ASSERT_DIFFERS(s.find("--param1 arg"),string::npos);
@@ -55,7 +55,7 @@ public:
 
 		TS_ASSERT(s.find("--param1 arg")<s.find("first parameter"));
 		TS_ASSERT(s.find("--param2 arg")<s.find("second parameter"));
-		TS_ASSERT(s.find("--param1 arg")<s.find("--param2 argr"));
+		TS_ASSERT(s.find("--param1 arg")<s.find("--param2 arg"));
 
 		s=description_booleans.human_readable_description();
 		TS_ASSERT_DIFFERS(s.find("--param1 arg"),string::npos);
@@ -65,7 +65,7 @@ public:
 
 		TS_ASSERT(s.find("--param1 arg")<s.find("first parameter"));
 		TS_ASSERT(s.find("--param2 arg")<s.find("second parameter"));
-		TS_ASSERT(s.find("--param1 arg")<s.find("--param2 argr"));
+		TS_ASSERT(s.find("--param1 arg")<s.find("--param2 arg"));
 }
 
 	void testParseStringsWithEquals() {

@@ -39,8 +39,8 @@ public:
 			return 1;
 		}
 	}
-	string human_readable_description(int indent=0) const {
-		return string(' ',indent)+"--"s+name() + "\t"s+description();
+	virtual string human_readable_description(int indent=0) const {
+		return string(indent,' ')+"--"s+name() + "\t"s+description()+"\n";
 	}
 	virtual void add_option_description(po::options_description& options) const =0;
 	virtual ~OptionAndValueDescription()=default;
@@ -77,6 +77,9 @@ public:
 		{}
 	void add_option_description(po::options_description& options) const override {
 		options.add_options()(this->name().c_str(), BoostType<remove_cv_t<remove_reference_t<BoostParameterType>>>::value(),this->description().c_str());
+	}
+	string human_readable_description(int indent=0) const override {
+		return string(indent,' ')+"--"s+this->name() + " arg\t"s+this->description()+"\n";
 	}
 };
 

@@ -18,22 +18,14 @@ public:
 		if (count>1) throw TooManyAlternatives(description_);
 		return count;
 	}
-	void add_option_description(po::options_description& options) const {
-		stringstream s;
-		auto print_to_s=[&s] (auto& alternative) {
-			if (!s.str().empty()) s<<" or "<<endl;
-			s<<alternative.human_readable_description();
-		};
-		iterate_over_tuple(print_to_s,alternatives);
-		options.add_options()(s.str().c_str(),description_.c_str());	//add a dummy option to tell the user that one of the alternatives must be indicated
-		auto add_option=[&options] (auto& alternative) {alternative.add_option_description(options);};
-		iterate_over_tuple(add_option,alternatives);
-	}
 	string human_readable_description(int indent=0) const {
 		stringstream s;
-		s<<string(' ',indent)<<description()<<endl;
-		auto add_description = [&s,indent] (auto& desc) {
-				s<<string(' ',indent+1)<<"| "<<desc.human_readable_description()<<endl;
+		s<<string(indent,' ')<<description()<<endl;
+		auto line_sep=string(indent+1,' ')+'+'+string(description().size()-2,'-');
+		s<<line_sep<<endl;
+		auto add_description = [&s,indent,line_sep] (auto& desc) {
+				s<<desc.human_readable_description(indent+1);
+				s<<line_sep<<endl;
 			};
 		iterate_over_tuple(add_description,alternatives);
 		return s.str();

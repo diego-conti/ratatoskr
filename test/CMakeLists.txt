@@ -4,8 +4,11 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 add_compile_options(-g -O0)
 
-#set (CXXTESTFLAGS --error-printer --no-eh)
-set (CXXTESTFLAGS --error-printer)
+if (DEFINED ${DEBUG})
+	set (CXXTESTFLAGS --error-printer --no-eh)
+else()
+	set (CXXTESTFLAGS --error-printer)
+endif()
 
 set (TESTS testcommandlineparameters testprogramdescriptions testdependentparameters testalternativeparameters testsymbols testgeneric
 	testpairs)

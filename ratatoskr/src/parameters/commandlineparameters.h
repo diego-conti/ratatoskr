@@ -13,11 +13,6 @@ namespace ratatoskr {
 template<typename Parameters, typename TupleOfParameterDescriptions>
 class SequenceOfParameterDescriptions {
 	TupleOfParameterDescriptions parameter_descriptions;
-protected:
-	po::options_description description(po::options_description options=empty_options_description()) const {
-		add_option_description(options);
-		return options;
-	}
 public:
 	SequenceOfParameterDescriptions(TupleOfParameterDescriptions parameter_descriptions) : parameter_descriptions{parameter_descriptions}{}
 	int fill(Parameters& parameters,int argc, const char** argv) const {
@@ -28,16 +23,10 @@ public:
 		iterate_over_tuple(fill_parameter,parameter_descriptions);
 		return parameters_filled==tuple_size_v<TupleOfParameterDescriptions>? 1 : 0;
 	}
-	void add_option_description(po::options_description& options) const {
-		auto add_to_options_description = [&options] (auto& desc) {
-			desc.add_option_description(options);
-		};
-		iterate_over_tuple(add_to_options_description,parameter_descriptions);
-	}
 	string human_readable_description(int indent=0) const {
 		stringstream s;
 		auto add_description = [&s,indent] (auto& desc) {
-				s<<desc.human_readable_description(indent+1)<<endl;
+				s<<desc.human_readable_description(indent+1);
 			};
 		iterate_over_tuple(add_description,parameter_descriptions);
 		return s.str();
