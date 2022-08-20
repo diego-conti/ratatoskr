@@ -150,7 +150,7 @@ auto make_parameter_description(T... options) {
 	auto tuple=tuple_of_parameter_descriptions(options...);
 	using tuple_type=decltype(tuple);
 	using Parameters=underlying_parameters_t<tuple_type>;
-	static_assert(!is_void_v<Parameters>,"make_sequence_of_parameter_descriptions requires a nonempty sequence of parameter descriptions");
+	static_assert(!is_undefined_v<Parameters>,"make_sequence_of_parameter_descriptions requires a nonempty sequence of parameter descriptions");
 	return DescriptionOfCommandLineParameters<Parameters,tuple_type>(tuple);
 }
 
@@ -159,7 +159,7 @@ auto make_sequence_of_parameter_descriptions(T... options) {
 	auto tuple=tuple_of_parameter_descriptions(options...);
 	using tuple_type=decltype(tuple);
 	using Parameters=underlying_parameters_t<tuple_type>;
-	static_assert(!is_void_v<Parameters>,"make_sequence_of_parameter_descriptions requires a nonempty sequence of parameter descriptions");
+	static_assert(!is_undefined_v<Parameters>,"make_sequence_of_parameter_descriptions requires a nonempty sequence of parameter descriptions");
 	return SequenceOfParameterDescriptions<Parameters,tuple_type>(tuple);
 }
 

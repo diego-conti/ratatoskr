@@ -34,41 +34,21 @@ public:
 	auto operator() (T&&... parameter_descriptions) const {
 		auto new_alternative=make_sequence_of_parameter_descriptions(std::forward<T>(parameter_descriptions)...);
 		auto tuple=tuple_cat(alternatives,make_tuple(new_alternative));
-		return AlternativeParameterDescriptions<Parameters,decltype(tuple)>(description_,move(tuple));
+		using tuple_type=decltype(tuple);
+		return AlternativeParameterDescriptions<underlying_parameters_t<tuple_type>,tuple_type>(description_,move(tuple));
 	}
 };
-
-template<typename T>
-struct parameters_type {
-	using type=void;
-};
-
-template<typename Parameters, typename TupleOfAlternatives>
-struct parameters_type<AlternativeParameterDescriptions<Parameters,TupleOfAlternatives>> {
-	using type= Parameters;
-};
-
-template<typename Parameters, typename ParameterType,typename Converter, typename RequiredParameters, typename BoostParameterType>
-struct parameters_type<DependentParameterDescription<Parameters,ParameterType,Converter,RequiredParameters,BoostParameterType>> {
-	using type=Parameters;
-};
-
-template<typename T, typename... U>
-struct parameters_type<tuple<T,U...>> {
-	using type= typename parameters_type<T>::type;
-};
-
-template<typename T>
-using parameters_t=typename parameters_type<T>::type;
 
 template<typename Parameters, typename TupleOfAlternatives, typename... T>
 auto tuple_of_parameter_descriptions(AlternativeParameterDescriptions<Parameters, TupleOfAlternatives> alternatives, T&&... otherParameters) {
 	return insert_in_tuple(alternatives,tuple_of_parameter_descriptions(std::forward<T>(otherParameters)...));
 }
 
-template<typename Parameters>
 auto alternative(const string& description) {
-	return AlternativeParameterDescriptions<Parameters,tuple<>>(description,make_tuple());
+	auto tuple=make_tuple();
+	using tuple_type=decltype(tuple);
+	using Parameters=underlying_parameters_t<tuple_type>;
+	return AlternativeParameterDescriptions<Parameters,tuple_type>(description,move(tuple));
 }
 
 

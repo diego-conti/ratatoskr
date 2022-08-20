@@ -17,7 +17,7 @@ struct CommandLineParameters {
 auto description_metric=make_parameter_description
 (
 		"lie-algebra","Lie algebra without parameters",lie_algebra(&CommandLineParameters::G),
-		alternative<CommandLineParameters>("pseudo-riemannian metric on the Lie algebra")
+		alternative("pseudo-riemannian metric on the Lie algebra")
 				("metric-by-musical", "metric defined by the musical 'flat' isomorphism", metric_by_flat(&CommandLineParameters::g,&CommandLineParameters::G))
 				("diagonal-metric", "diagonal metric defined by a space-separated list of coefficients", diagonal_pseudo_riemannian_metric(&CommandLineParameters::g,&CommandLineParameters::G))
 );
