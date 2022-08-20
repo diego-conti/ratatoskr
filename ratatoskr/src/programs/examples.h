@@ -5,7 +5,7 @@ struct Parameters {
 	float amount;
 	ex conversion;
 };
-auto parameters_description=make_parameter_description<Parameters>(
+auto parameters_description=make_parameter_description(
 	"amount","The amount to convert",&Parameters::amount,
 	"conversion-ratio","The conversion ratio",expression(&Parameters::conversion)
 );
@@ -22,7 +22,7 @@ struct Parameters {
 	ex function;
 	ex variable;
 };
-auto parameters_description=make_parameter_description<Parameters>(
+auto parameters_description=make_parameter_description(
 	"variable","a variable",new_symbol(&Parameters::variable),
 	"function","a function of one variable",expression(&Parameters::function,&Parameters::variable)
 );
@@ -40,7 +40,7 @@ struct Parameters {
 	ex function;
 	ex variable;
 };
-auto parameters_description=make_parameter_description<Parameters>(
+auto parameters_description=make_parameter_description(
 	"variable","a variable",expression(&Parameters::variable,&Parameters::symbols),
 	"function","a function of one or more variables",expression(&Parameters::function,&Parameters::symbols)
 );

@@ -15,24 +15,24 @@ struct CommandLineParameters {
 	ex form;
 };
 
-auto description_lie_algebra=make_parameter_description<CommandLineParameters>
+auto description_lie_algebra=make_parameter_description
 (
 		"lie-algebra","Lie algebra without parameters",lie_algebra(&CommandLineParameters::G)
 );
 
-auto description_metric=make_parameter_description<CommandLineParameters>
+auto description_metric=make_parameter_description
 (
 		"lie-algebra","Lie algebra without parameters",lie_algebra(&CommandLineParameters::G),
 		"metric", "pseudo-riemannian metric on the Lie algebra", metric_by_flat(&CommandLineParameters::g,&CommandLineParameters::G)
 );
 
-auto description_diagonal_metric=make_parameter_description<CommandLineParameters>
+auto description_diagonal_metric=make_parameter_description
 (
 		"lie-algebra","Lie algebra without parameters",lie_algebra(&CommandLineParameters::G),
 		"metric", "pseudo-riemannian metric on the Lie algebra", diagonal_pseudo_riemannian_metric(&CommandLineParameters::g,&CommandLineParameters::G)
 );
 
-auto description_form=make_parameter_description<CommandLineParameters>
+auto description_form=make_parameter_description
 (
 		"lie-algebra","Lie algebra without parameters",lie_algebra(&CommandLineParameters::G),
 		"form","differential form",differential_form(&CommandLineParameters::form,&CommandLineParameters::G)

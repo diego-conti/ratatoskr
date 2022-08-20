@@ -32,7 +32,7 @@ public:
 	}
 	template<typename... T>
 	auto operator() (T&&... parameter_descriptions) const {
-		auto new_alternative=make_sequence_of_parameter_descriptions<Parameters>(std::forward<T>(parameter_descriptions)...);
+		auto new_alternative=make_sequence_of_parameter_descriptions(std::forward<T>(parameter_descriptions)...);
 		auto tuple=tuple_cat(alternatives,make_tuple(new_alternative));
 		return AlternativeParameterDescriptions<Parameters,decltype(tuple)>(description_,move(tuple));
 	}

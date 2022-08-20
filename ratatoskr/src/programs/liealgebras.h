@@ -7,7 +7,7 @@ namespace ExtDerivative {
 		ex form;
 	};
 
-	auto parameters_description=make_parameter_description<Parameters>
+	auto parameters_description=make_parameter_description
 	(
 		"lie-algebra","Lie algebra without parameters",lie_algebra(&Parameters::G),
 		"form","a differential form on the Lie algebra",differential_form(&Parameters::form,&Parameters::G)
@@ -27,7 +27,7 @@ namespace ClosedForms {
 		int p;
 	};
 
-	auto parameters_description=make_parameter_description<Parameters>
+	auto parameters_description=make_parameter_description
 	(
 		"lie-algebra","Lie algebra without parameters",lie_algebra(&Parameters::G),
 		"p","a positive integer",&Parameters::p
@@ -47,7 +47,7 @@ namespace Subalgebra {
 		unique_ptr<LieGroupHasParameters<false>> H;
 	};
 
-	auto parameters_description=make_parameter_description<Parameters>
+	auto parameters_description=make_parameter_description
 	(
 		"lie-algebra","Lie algebra without parameters",lie_algebra(&Parameters::G),
 		"subalgebra","comma-separated list of generators of the subalgebra",lie_subalgebra(&Parameters::H,&Parameters::G)
@@ -68,7 +68,7 @@ namespace SubalgebraWithParameters {
 		GlobalSymbols symbols;
 	};
 
-	auto parameters_description=make_parameter_description<Parameters>
+	auto parameters_description=make_parameter_description
 	(
 		"lie-algebra","Lie algebra with parameters",lie_algebra(&Parameters::G,&Parameters::symbols),
 		"subalgebra","comma-separated list of generators of the subalgebra",lie_subalgebra(&Parameters::H,&Parameters::G,&Parameters::symbols)

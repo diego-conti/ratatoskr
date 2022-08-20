@@ -145,16 +145,22 @@ auto tuple_of_parameter_descriptions(const string& name, const string& descripti
 	return insert_in_tuple(parameter_description,tuple_of_parameter_descriptions(otherParameters...));
 }
 
-template<typename Parameters, typename... T>
+template<typename... T>
 auto make_parameter_description(T... options) {
-	auto tuple=tuple_of_parameter_descriptions<Parameters>(options...);
-	return DescriptionOfCommandLineParameters<Parameters,decltype(tuple)>(tuple);
+	auto tuple=tuple_of_parameter_descriptions(options...);
+	using tuple_type=decltype(tuple);
+	using Parameters=underlying_parameters_t<tuple_type>;
+	static_assert(!is_void_v<Parameters>,"make_sequence_of_parameter_descriptions requires a nonempty sequence of parameter descriptions");
+	return DescriptionOfCommandLineParameters<Parameters,tuple_type>(tuple);
 }
 
-template<typename Parameters, typename... T>
+template<typename... T>
 auto make_sequence_of_parameter_descriptions(T... options) {
-	auto tuple=tuple_of_parameter_descriptions<Parameters>(options...);
-	return SequenceOfParameterDescriptions<Parameters,decltype(tuple)>(tuple);
+	auto tuple=tuple_of_parameter_descriptions(options...);
+	using tuple_type=decltype(tuple);
+	using Parameters=underlying_parameters_t<tuple_type>;
+	static_assert(!is_void_v<Parameters>,"make_sequence_of_parameter_descriptions requires a nonempty sequence of parameter descriptions");
+	return SequenceOfParameterDescriptions<Parameters,tuple_type>(tuple);
 }
 
 template<typename BoostType=string,typename Parameters, typename ParameterType, typename Converter,  typename... RequiredParameters>

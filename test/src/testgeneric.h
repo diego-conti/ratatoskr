@@ -15,13 +15,13 @@ struct CommandLineParameters {
 	unique_ptr<PseudoRiemannianStructure> g;
 };
 
-auto description_diagonal=make_parameter_description<CommandLineParameters>
+auto description_diagonal=make_parameter_description
 (
 		"lie-algebra","Lie algebra with parameters",lie_algebra(&CommandLineParameters::G,&CommandLineParameters::symbols),
 		"generic-diagonal-metric","generic diagonal metric",generic_diagonal_metric(&CommandLineParameters::g,&CommandLineParameters::G,&CommandLineParameters::metric_parameters)
 );
 
-auto description_nonzero_entries=make_parameter_description<CommandLineParameters>
+auto description_nonzero_entries=make_parameter_description
 (
 		"lie-algebra","Lie algebra with parameters",lie_algebra(&CommandLineParameters::G,&CommandLineParameters::symbols),
 		"generic-metric-from-nonzero-entries","generic metric from list of nonzero entries",

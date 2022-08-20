@@ -17,17 +17,17 @@ struct CommandLineParameters {
 	bool bool_parameter2;
 };
 
-auto description_strings=make_parameter_description<CommandLineParameters>
+auto description_strings=make_parameter_description
 (
 		"param1","first parameter",&CommandLineParameters::string_parameter1,
 		"param2","second parameter",&CommandLineParameters::string_parameter2
 );
-auto description_integers=make_parameter_description<CommandLineParameters>
+auto description_integers=make_parameter_description
 (
 		"param1","first parameter",&CommandLineParameters::int_parameter1,
 		"param2","second parameter",&CommandLineParameters::int_parameter2
 );
-auto description_booleans=make_parameter_description<CommandLineParameters>
+auto description_booleans=make_parameter_description
 (
 		"param1","first parameter",&CommandLineParameters::bool_parameter1,
 		"param2","second parameter",&CommandLineParameters::bool_parameter2

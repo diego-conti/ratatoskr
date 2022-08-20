@@ -8,7 +8,7 @@ namespace Curvature {
 		pair<int,int> signature;
 	};
 
-	auto parameters_description=make_parameter_description<Parameters> (
+	auto parameters_description=make_parameter_description (
 		"lie-algebra","Lie algebra without parameters",lie_algebra(&Parameters::G),
 		alternative<Parameters>("pseudo-riemannian metric")(
 			"signature", "signature (p,q)", comma_separated_pair(&Parameters::signature),

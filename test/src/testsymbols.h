@@ -13,11 +13,11 @@ struct ExParameter {
 	GlobalSymbols symbols;
 	ex x,y;
 };
-auto description_ex_no_symbols = make_parameter_description<ExParameter> (
+auto description_ex_no_symbols = make_parameter_description(
 		"x", "a ginac expression without symbols", expression(&ExParameter::x),
 		"y", "a ginac expression without symbols", expression(&ExParameter::y)
 );
-auto description_ex_with_symbols = make_parameter_description<ExParameter> (
+auto description_ex_with_symbols = make_parameter_description (
 		"symbol", "a predefined symbol", expression(&ExParameter::x,&ExParameter::symbols),
 		"expression", "a ginac expression with symbol", expression(&ExParameter::y,&ExParameter::symbols)
 );
@@ -27,7 +27,7 @@ struct DoubleGlobalSymbolsParameters {
 	GlobalSymbols symbols2;
 	ex x,y;
 };
-auto description_double=make_parameter_description<DoubleGlobalSymbolsParameters> (
+auto description_double=make_parameter_description (
 		"x", "an ex depending on global symbols", expression(&DoubleGlobalSymbolsParameters::x,&DoubleGlobalSymbolsParameters::symbols),
 		"y", "an ex depending on global symbols", expression(&DoubleGlobalSymbolsParameters::y,&DoubleGlobalSymbolsParameters::symbols2)
 );
@@ -36,7 +36,7 @@ struct ManySymbolsParameters {
 	ex symbols;
 	ex x;
 };
-auto description_many_symbols = make_parameter_description<ManySymbolsParameters>(
+auto description_many_symbols = make_parameter_description(
 	"symbols", "symbols to be used in expression", new_symbols(&ManySymbolsParameters::symbols),
 	"x", "expression using symbols ", expression(&ManySymbolsParameters::x,&ManySymbolsParameters::symbols)
 );
@@ -45,7 +45,7 @@ struct CommandLineParameters {
 	GlobalSymbols symbols;
 	unique_ptr<LieGroup> G;
 };
-auto description=make_parameter_description<CommandLineParameters>
+auto description=make_parameter_description
 (
 		"lie-algebra","Lie algebra with parameters",lie_algebra(&CommandLineParameters::G,&CommandLineParameters::symbols)
 );

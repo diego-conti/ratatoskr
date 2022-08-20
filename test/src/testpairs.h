@@ -15,7 +15,7 @@ struct CommandLineParameters {
 	pair<string,int> string_and_int;
 };
 
-auto description=make_parameter_description<CommandLineParameters>
+auto description=make_parameter_description
 (
 		"int-and-float","int and float", comma_separated_pair(&CommandLineParameters::int_and_float),
 		"string-and-string","string and string", comma_separated_pair(&CommandLineParameters::string_and_string),

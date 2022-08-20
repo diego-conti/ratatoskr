@@ -14,7 +14,7 @@ struct CommandLineParameters {
 };
 
 
-auto description_metric=make_parameter_description<CommandLineParameters>
+auto description_metric=make_parameter_description
 (
 		"lie-algebra","Lie algebra without parameters",lie_algebra(&CommandLineParameters::G),
 		alternative<CommandLineParameters>("pseudo-riemannian metric on the Lie algebra")

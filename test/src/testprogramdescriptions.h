@@ -25,17 +25,17 @@ struct BoolCommandLineParameters {
 };
 
 
-auto description_strings=make_parameter_description<StringCommandLineParameters>
+auto description_strings=make_parameter_description
 (
 		"param1","first parameter",&StringCommandLineParameters::string_parameter1,
 		"param2","second parameter",&StringCommandLineParameters::string_parameter2
 );
-auto description_integers=make_parameter_description<IntCommandLineParameters>
+auto description_integers=make_parameter_description
 (
 		"param1","first parameter",&IntCommandLineParameters::int_parameter1,
 		"param2","second parameter",&IntCommandLineParameters::int_parameter2
 );
-auto description_booleans=make_parameter_description<BoolCommandLineParameters>
+auto description_booleans=make_parameter_description
 (
 		"param1","first parameter",&BoolCommandLineParameters::bool_parameter1,
 		"param2","second parameter",&BoolCommandLineParameters::bool_parameter2
