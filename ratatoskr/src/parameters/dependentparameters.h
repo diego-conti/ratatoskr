@@ -1,6 +1,7 @@
 #ifndef DEPENDENT_PARAMETERS_H
 #define DEPENDENT_PARAMETERS_H
 #include "commandlineparameters.h"
+#include "output/twocolumnoutput.h"
 #include <type_traits>
 #include <vector>
 namespace ratatoskr {
@@ -20,13 +21,15 @@ class OptionAndValueDescription {
 	string description_;
 protected:
 	virtual void do_fill(Parameters& parameters, const po::variables_map& command_line_variable_map) const=0;
+	virtual string parameter_name() const=0;
+	virtual void add_option_description(po::options_description& options) const =0;
+	string name() const {return name_;}
+	string description() const {return description_;}
 public:
 	using ParametersType = Parameters;
 	OptionAndValueDescription(string name, string description)
 		: name_{name}, description_{description}
 		{}
-	string name() const {return name_;}
-	string description() const {return description_;}
 	int fill(Parameters& parameters, int argc, const char** argv) const {
 		po::variables_map vm;
 		po::options_description options;
@@ -39,10 +42,9 @@ public:
 			return 1;
 		}
 	}
-	virtual string human_readable_description(int indent=0) const {
-		return string(indent,' ')+"--"s+name() + "\t"s+description()+"\n";
+	string human_readable_description(int indent=0) const {
+		return two_column_output("--"s+parameter_name(), description(),indent);
 	}
-	virtual void add_option_description(po::options_description& options) const =0;
 	virtual ~OptionAndValueDescription()=default;
 };
 
@@ -70,17 +72,15 @@ protected:
 		auto bound_required_parameters=std::apply(bind, required_parameters);
 		parameters.*p=std::apply(converter,insert_in_tuple(text,bound_required_parameters));
 	}
+	void add_option_description(po::options_description& options) const override {
+		options.add_options()(this->name().c_str(), BoostType<remove_cv_t<remove_reference_t<BoostParameterType>>>::value(),this->description().c_str());
+	}
+	virtual string parameter_name() const override {return this->name()+" arg"s;}
 public:
 	DependentParameterDescription(string name, string description,
 			ParameterType Parameters::*p, Converter& converter,const RequiredParameters& required_parameters)
 		: OptionAndValueDescription<Parameters> {name, description}, p{p}, converter{converter}, required_parameters{required_parameters}
 		{}
-	void add_option_description(po::options_description& options) const override {
-		options.add_options()(this->name().c_str(), BoostType<remove_cv_t<remove_reference_t<BoostParameterType>>>::value(),this->description().c_str());
-	}
-	string human_readable_description(int indent=0) const override {
-		return string(indent,' ')+"--"s+this->name() + " arg\t"s+this->description()+"\n";
-	}
 };
 
 template<typename Parameters, typename ParameterType,typename Initializer, typename RequiredParameters>
@@ -94,14 +94,15 @@ protected:
 		auto bound_required_parameters=std::apply(bind, required_parameters);
 		parameters.*p=std::apply(initializer,bound_required_parameters);
 	}
+	void add_option_description(po::options_description& options) const override {
+			options.add_options()(this->name().c_str(), this->description().c_str());
+	}
+	virtual string parameter_name() const override {return this->name();}
 public:
 	OptionDescription(string name, string description,
 			ParameterType Parameters::*p, Initializer& initializer,const RequiredParameters& required_parameters)
 		: OptionAndValueDescription<Parameters> {name, description}, p{p}, initializer{initializer}, required_parameters{required_parameters}
-		{}
-		void add_option_description(po::options_description& options) const override {
-				options.add_options()(this->name().c_str(), this->description().c_str());
-		}
+	{}
 };
 
 template<typename Parameters, typename ParameterType, typename Converter, typename RequiredParameters=tuple<>,typename BoostParameterType=string>

@@ -1,3 +1,5 @@
+#include "output/twocolumnoutput.h"
+
 namespace ratatoskr {
 
 inline po::options_description output_options() {
@@ -77,7 +79,7 @@ class CommandLineProgramDescriptions {
 		stringstream commands;
 		commands<<"Allowed commands:"<<endl;
 		auto add_to_command_description = [&commands] (auto& desc) {
-			commands<<desc.command()<<'\t'<<desc.purpose()<<endl;
+			commands<<two_column_output(desc.command(),desc.purpose(),1);
 		};
 		iterate_over_tuple(add_to_command_description,programDescriptions);
 		commands<<endl;
