@@ -148,10 +148,7 @@ auto tuple_of_parameter_descriptions(const string& name, const string& descripti
 template<typename... T>
 auto make_parameter_description(T... options) {
 	auto tuple=tuple_of_parameter_descriptions(options...);
-	using tuple_type=decltype(tuple);
-	using Parameters=underlying_parameters_t<tuple_type>;
-	static_assert(!is_undefined_v<Parameters>,"make_sequence_of_parameter_descriptions requires a nonempty sequence of parameter descriptions");
-	return DescriptionOfCommandLineParameters<Parameters,tuple_type>(tuple);
+	return DescriptionOfCommandLineParameters<decltype(tuple)>(tuple);
 }
 
 template<typename... T>
@@ -159,8 +156,7 @@ auto make_sequence_of_parameter_descriptions(T... options) {
 	auto tuple=tuple_of_parameter_descriptions(options...);
 	using tuple_type=decltype(tuple);
 	using Parameters=underlying_parameters_t<tuple_type>;
-	static_assert(!is_undefined_v<Parameters>,"make_sequence_of_parameter_descriptions requires a nonempty sequence of parameter descriptions");
-	return SequenceOfParameterDescriptions<Parameters,tuple_type>(tuple);
+	return SequenceOfParameterDescriptions<tuple_type>(tuple);
 }
 
 template<typename BoostType=string,typename Parameters, typename ParameterType, typename Converter,  typename... RequiredParameters>

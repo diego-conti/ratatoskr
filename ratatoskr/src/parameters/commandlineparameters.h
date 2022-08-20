@@ -10,8 +10,9 @@ inline po::options_description empty_options_description() {
 }
 
 namespace ratatoskr {
-template<typename Parameters, typename TupleOfParameterDescriptions>
+template<typename TupleOfParameterDescriptions,typename Parameters>
 class SequenceOfParameterDescriptions {
+	static_assert(!is_undefined_v<Parameters>,"SequenceOfParameterDescriptions requires a nonempty tuple of nonempty parameter descriptions");
 	TupleOfParameterDescriptions parameter_descriptions;
 public:
 	SequenceOfParameterDescriptions(TupleOfParameterDescriptions parameter_descriptions) : parameter_descriptions{parameter_descriptions}{}
@@ -34,10 +35,11 @@ public:
 	virtual ~SequenceOfParameterDescriptions()=default;
 };
 
-template<typename Parameters, typename TupleOfParameterDescriptions>
-class DescriptionOfCommandLineParameters : public SequenceOfParameterDescriptions<Parameters, TupleOfParameterDescriptions> {
+template<typename TupleOfParameterDescriptions,typename Parameters>
+class DescriptionOfCommandLineParameters : public SequenceOfParameterDescriptions<TupleOfParameterDescriptions,Parameters> {
+	static_assert(!is_undefined_v<Parameters>,"DescriptionOfCommandLineParameters requires a nonempty tuple of nonempty parameter descriptions");
 public:
-	using SequenceOfParameterDescriptions<Parameters, TupleOfParameterDescriptions> ::SequenceOfParameterDescriptions;
+	using SequenceOfParameterDescriptions<TupleOfParameterDescriptions,Parameters> ::SequenceOfParameterDescriptions;
 	Parameters parametersFromCommandLine(int argc, const char** argv) const {
 		try {
 			Parameters params;

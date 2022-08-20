@@ -15,7 +15,7 @@ using underlying_parameters_t=typename UnderlyingParameters<T>::type;
 
 
 //forward references
-template<typename Parameters, typename TupleOfParameterDescriptions>
+template<typename TupleOfParameterDescriptions,typename Parameters=underlying_parameters_t<TupleOfParameterDescriptions>>
 class SequenceOfParameterDescriptions;
 
 template<typename Parameters,typename ParameterType,typename Converter, typename RequiredParameters, typename BoostParameterType>
@@ -24,20 +24,27 @@ class DependentParameterDescription;
 template<typename Parameters,typename ParameterType,typename Initializer, typename RequiredParameters>
 class OptionDescription;
 
-template<typename Parameters, typename TupleOfAlternatives>
+template<typename TupleOfAlternatives,typename Parameters=underlying_parameters_t<TupleOfAlternatives>>
 class AlternativeParameterDescriptions;
 
+template<typename TupleOfParameterDescriptions,typename Parameters=underlying_parameters_t<TupleOfParameterDescriptions>>
+class DescriptionOfCommandLineParameters;
+
 //specializations
-template<typename Parameters, typename TupleOfAlternatives>
-struct UnderlyingParameters<AlternativeParameterDescriptions<Parameters,TupleOfAlternatives>> {
+template<typename TupleOfAlternatives,typename Parameters>
+struct UnderlyingParameters<SequenceOfParameterDescriptions<TupleOfAlternatives,Parameters>> {
 	using type=Parameters;
 };
 
-template<typename Parameters, typename TupleOfAlternatives>
-struct UnderlyingParameters<SequenceOfParameterDescriptions<Parameters,TupleOfAlternatives>> {
+template<typename TupleOfAlternatives,typename Parameters>
+struct UnderlyingParameters<AlternativeParameterDescriptions<TupleOfAlternatives,Parameters>> {
 	using type=Parameters;
 };
 
+template<typename TupleOfAlternatives,typename Parameters>
+struct UnderlyingParameters<DescriptionOfCommandLineParameters<TupleOfAlternatives,Parameters>> {
+	using type=Parameters;
+};
 
 template<typename Parameters, typename ParameterType,typename Converter, typename RequiredParameters, typename BoostParameterType>
 struct UnderlyingParameters<

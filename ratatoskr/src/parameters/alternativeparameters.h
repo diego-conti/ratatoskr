@@ -1,5 +1,5 @@
 namespace ratatoskr {
-template<typename Parameters, typename TupleOfAlternatives>
+template<typename TupleOfAlternatives,typename Parameters>
 class AlternativeParameterDescriptions {
 	string description_;
 	TupleOfAlternatives alternatives;
@@ -34,21 +34,17 @@ public:
 	auto operator() (T&&... parameter_descriptions) const {
 		auto new_alternative=make_sequence_of_parameter_descriptions(std::forward<T>(parameter_descriptions)...);
 		auto tuple=tuple_cat(alternatives,make_tuple(new_alternative));
-		using tuple_type=decltype(tuple);
-		return AlternativeParameterDescriptions<underlying_parameters_t<tuple_type>,tuple_type>(description_,move(tuple));
+		return AlternativeParameterDescriptions<decltype(tuple)>(description_,move(tuple));
 	}
 };
 
-template<typename Parameters, typename TupleOfAlternatives, typename... T>
-auto tuple_of_parameter_descriptions(AlternativeParameterDescriptions<Parameters, TupleOfAlternatives> alternatives, T&&... otherParameters) {
+template<typename TupleOfAlternatives, typename Parameters, typename... T>
+auto tuple_of_parameter_descriptions(AlternativeParameterDescriptions<TupleOfAlternatives,Parameters> alternatives, T&&... otherParameters) {
 	return insert_in_tuple(alternatives,tuple_of_parameter_descriptions(std::forward<T>(otherParameters)...));
 }
 
 auto alternative(const string& description) {
-	auto tuple=make_tuple();
-	using tuple_type=decltype(tuple);
-	using Parameters=underlying_parameters_t<tuple_type>;
-	return AlternativeParameterDescriptions<Parameters,tuple_type>(description,move(tuple));
+	return AlternativeParameterDescriptions<tuple<>>(description,make_tuple());
 }
 
 
