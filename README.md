@@ -307,7 +307,7 @@ The different types of LieGroup in Wedge require different directives.
 There are two main classes used in Wedge to define a metric.
 
 	`StandardPseudoRiemannianStructure`. This is the Wedge class for pseudo-Riemannian metrics defined by an orthonormal coframe. Since indefinite metrics are allowed, a signature needs to be specified. The directive to describe this parameter is
-	`metric_by_on_coframe(&Parameters::metric, &Parameters::lie_algebra, &Parameters::signature). The metric should be passed on the command line as a comma-separated list of one-forms. `signature` should be a pair of integers (p,q).
+	`metric_by_on_coframe(&Parameters::metric, &Parameters::lie_algebra, &Parameters::signature). The metric should be passed on the command line as a comma-separated list of one-forms. `signature` should be a pair of integers (p,q). The first p entries in the coframe are assumed to be space-like, and the last q time-like.
 	
 	struct Parameters {
 		unique_ptr<LieGroup> G;
@@ -368,9 +368,18 @@ For instance, we have seen that pseudo-Riemannian structures can be specified in
 			os<<"Ricci tensor="<<omega.RicciAsMatrix()<<endl;
 		}
 	);
-	Example usage:
 	
-		$ratatoskr/ratatoskr curvature --lie-algebra 0,0,12  --signature=2,1 --metric-by-on-coframe 1,2,3 --latex
+Example usage:
 
-		$ratatoskr/ratatoskr curvature --lie-algebra 0,0,12  --signature=2,1 --metric-by-flat 2*1,2*2,3 --latex
-		
+	$ratatoskr/ratatoskr curvature --lie-algebra 0,0,12,13  --signature=3,1 --metric-by-on-coframe "[1/sqrt(2)]*(1+3),2,4,[1/sqrt(2)]*(1-3)"
+	(0,0,e1*e2,e1*e3)
+	Curvature=[[0,-1/4*sqrt(2)*(e1*e4),-1/8*sqrt(2)*(e1*e4)-1/8*sqrt(2)*(e3*e4)-1/4*sqrt(2)*(e1*e2),3/4*(e1*e3)],[1/4*sqrt(2)*(e1*e4),0,0,1/4*sqrt(2)*(e1*e4)],[1/8*sqrt(2)*(e1*e4)+1/8*sqrt(2)*(e3*e4)+1/4*sqrt(2)*(e1*e2),0,0,-1/8*sqrt(2)*(e1*e4)+1/8*sqrt(2)*(e3*e4)+1/4*sqrt(2)*(e1*e2)],[3/4*(e1*e3),1/4*sqrt(2)*(e1*e4),-1/8*sqrt(2)*(e1*e4)+1/8*sqrt(2)*(e3*e4)+1/4*sqrt(2)*(e1*e2),0]]
+	Ricci tensor=[[1/2,0,0,0],[0,0,0,0],[0,0,-1/2,0],[0,0,0,-1/2]]
+
+	$ratatoskr/ratatoskr curvature --lie-algebra 0,0,12,13  --metric-by-flat 3,2,1,4	
+	(0,0,e1*e2,e1*e3)
+	Curvature=[[3/4*(e1*e3),0,0,-1/4*(e1*e4)],[1/2*(e1*e4),0,0,0],[0,-1/2*(e1*e4),-3/4*(e1*e3),-1/4*e3*e4-1/2*e1*e2],[1/4*e3*e4+1/2*e1*e2,0,1/4*(e1*e4),0]]
+	Ricci tensor=[[0,0,1/2,0],[0,0,0,0],[1/2,0,0,0],[0,0,0,-1/2]]	
+
+Notice that in both cases the metric is *e<sup>1</sup> ⊗ e<sup>3</sup>+e<sup>3</sup>⊗e<sup>1</sup>+e*<sup>2</sup>⊗e<sup>2</sup>+e*<sup>4</sup>⊗e<sup>4</sup>*, but the output differs because the class `PseudoLeviCivitaConnection` in Wedge uses the frame associated to the structure, which in the first case is the orthonormal frame.
+

@@ -40,3 +40,7 @@ add_test(NAME subalgebra_test COMMAND ratatoskr subalgebra-without-parameters --
 set_tests_properties(subalgebra_test PROPERTIES PASS_REGULAR_EXPRESSION "(0,e\\^{14},0,e\\^{13})")
 add_test(NAME subalgebra_with_parameters_test COMMAND ratatoskr subalgebra-with-parameters --lie-algebra 0,0,[a]*12,13 --subalgebra [a]*1,4,2,3 --latex)
 set_tests_properties(subalgebra_with_parameters_test PROPERTIES PASS_REGULAR_EXPRESSION "(0,a e\\^{14},0,a\\^2 e\\^{13})")
+add_test(NAME curvature_on_frame_test COMMAND ratatoskr curvature --lie-algebra 0,0,12,13  --signature=3,1 --metric-by-on-coframe "[1/sqrt(2)]*(1+3),2,4,[1/sqrt(2)]*(1-3)")
+set_tests_properties(curvature_on_frame_test PROPERTIES PASS_REGULAR_EXPRESSION "Ricci tensor=\\[\\[1/2,0,0,0\\],\\[0,0,0,0\\],\\[0,0,-1/2,0\\],\\[0,0,0,-1/2\\]\\]")
+add_test(NAME curvature_flat_test COMMAND ratatoskr curvature --lie-algebra 0,0,12,13  --metric-by-flat 3,2,1,4)
+set_tests_properties(curvature_flat_test PROPERTIES PASS_REGULAR_EXPRESSION "Ricci tensor=\\[\\[0,0,1/2,0\\],\\[0,0,0,0\\],\\[1/2,0,0,0\\],\\[0,0,0,-1/2\\]\\]")
