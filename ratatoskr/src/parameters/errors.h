@@ -34,5 +34,10 @@ class ParseError : public CommandLineError {
 public:
 	ParseError(const std::string& error) : CommandLineError{"error parsing parameter: "s+error} {}
 };
+
+class DefinitionError :  public std::logic_error {
+public:
+	using logic_error::logic_error;
+};
 }
 #endif

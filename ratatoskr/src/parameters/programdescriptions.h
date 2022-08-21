@@ -5,7 +5,18 @@ namespace ratatoskr {
 inline po::options_description output_options() {
 	po::options_description options;
 	options.add_options()("latex","latex output");
+	options.add_options()("silent","no output");
 	return options;
+}
+
+inline ostream& output_stream(int argc, const char** argv) {
+	po::variables_map vm;
+	po::store(po::command_line_parser(argc, argv).options(output_options()).allow_unregistered().run(), vm);
+	po::notify(vm);
+	static stringstream dev_null;
+	if (vm.count("silent")) return dev_null;
+	if (vm.count("latex")) cout<<latex;
+	return cout;
 }
 
 template<typename DescriptionOfCommandLineParameters, typename Program>
@@ -13,13 +24,6 @@ class ProgramDescription {
 	string command_, program_purpose_;
 	DescriptionOfCommandLineParameters parameterDescription;
 	Program program;
-	ostream& output_stream(int argc, const char** argv) const {
-		po::variables_map vm;
-		po::store(po::command_line_parser(argc, argv).options(output_options()).allow_unregistered().run(), vm);
-		po::notify(vm);
-		if (vm.count("latex")) cout<<latex;
-		return cout;
-	}
 public:
 	ProgramDescription(const string& command, const string& program_purpose, const DescriptionOfCommandLineParameters& desc, const Program& program)
 		: command_{command}, program_purpose_{program_purpose}, parameterDescription{desc}, program{program} {}
@@ -29,8 +33,7 @@ public:
 	void run(int argc, const char** argv) const {
 		try {
 			auto parameters=parameterDescription.parametersFromCommandLine(argc,argv);
-			auto& output=output_stream(argc,argv);
-			program(parameters,output);
+			program(parameters,output_stream(argc,argv));
 		}
 		catch (const CommandLineError& error) {
 			cerr<<error.what()<<endl;
@@ -47,6 +50,7 @@ public:
 template<typename DescriptionOfCommandLineParameters, typename Program>
 auto make_program_description(const string& command, const string& program_purpose,
 		const DescriptionOfCommandLineParameters& desc, const Program& program) {
+	if (command.find(' ')!=string::npos) throw DefinitionError("Command name "+command+ " should not contain whitespace");
 	return ProgramDescription<DescriptionOfCommandLineParameters,Program>(command,program_purpose,desc,program);
 }
 
@@ -106,8 +110,12 @@ public:
 	bool run(int argc, const char** argv) const {
 		if (argc>=2 && run_matching_program(argv[1],argc,argv))
 			return true;
+		else if (argc==2) {	//this is to ensure that invoking the program with the only option of "--silent" results in no output, for consistency
+			output_stream(argc,argv)<<command_description();
+			return false;
+		}
 		else {
-			cout<<command_description();
+			cerr<<command_description();
 			return false;
 		}
 	}

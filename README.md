@@ -25,16 +25,19 @@ You can run some tests by executing
 
 from the `build` directory.	
 
-## Usage
+## <a name="usage">Usage</a>
 
 A program built over `ratatoskr` consists of the following elements:
 
 + A struct, usually called `Parameters`, whose instances will be populated by reading the command-line parameters
 + A *parameter description*, which instructs `ratatoskr` on how to populate the parameters object.
-+ A function (or more generally, a callable object, e.g. a lambda)  which performs the actual computation and generates an output. The callable should accept an object of type `Parameters` which is populated based on the command line argument and an object of type `ostream` which is used for output.
++ A function (or more generally, a callable object, e.g. a lambda)  which performs the actual computation and generates an output. The callable should accept an object of type `Parameters` which is populated based on the command line argument sand an object of type `ostream` which is used for output.
 
 For instance, a program to compute the exterior derivative of a differential form on a Lie algebra can be written as follows
 
+	#include "ratatoskr.h"
+	using namespace ratatoskr;
+	
 	struct Parameters {
 		unique_ptr<LieGroup> G;
 		ex form;
@@ -49,7 +52,12 @@ For instance, a program to compute the exterior derivative of a differential for
 			os<<parameters.G->d(parameters.form)<<endl;
 		}
 	);	
+	int main(int argc, char** argv) {
+		program.run(argc,argv);
+	}
 
+This code compiles into an executable which takes two command-line parameters, `--lie-algebra` and `--form` (see [differential form parsing](#differentialforms)), and prints out the exterior derivative of the form relative to the Lie algebra. 
+	
 More examples are available in the subdirectory `programs`. They can be tested by invoking the executable `ratatoskr`, e.g.:
 
 	$ratatoskr/ratatoskr ext-derivative --lie-algebra 0,0,12 --form 3
@@ -60,7 +68,13 @@ or, for latex output,
 	$ratatoskr/ratatoskr ext-derivative --lie-algebra 0,0,12 --form 3 --latex	
 	e^{12}
 
-Notice that the option `--latex` is not indicated in the parameter description. It is an implicit option available for all programs, which has the effect of instructing the program to return latex output. Future versions of `ratatoskr` may introduce more implicit options that govern output.
+Notice that the option `--latex` is not indicated in the parameter description. It is an implicit option available for all programs generated with `make_program_description`, which has the effect of instructing the program to return latex output. Another implicit option is `--silent`, which discards all output. Future versions of `ratatoskr` may introduce more implicit options governing output.
+
+### Program description
+
+A C++ program may contain more than one 'program' in the sense explained in section [Usage](#usage). Each program is defined by an invocation of the form
+
+	make_program_description("my_program_name", "the purpose of my program", parameter_description, function) 
 
 ### Parameter descriptions
 
@@ -329,7 +343,7 @@ For some types of parameters, it makes sense to allow the user to choose between
 	
 The alternative descriptions need not populate the same parameters, though they are required to refer to the same `Parameters` class.
 
-Notice that this construct is only appropriate when the code that is being run by indicating each option is largely the same; otherwise, it  is advisable to use `alternative_programs`. 
+Notice that this construct is only appropriate when the code that is being run by indicating each option is largely the same; otherwise, it  is advisable to use [`alternative_programs`](#alternativeprograms). 
 
 For instance, we have seen that pseudo-Riemannian structures can be specified in three ways. These correspond to two different Wedge objects, which have a common ancestor `PseudoRiemannianStructure`; therefore, they can be viewed as alternative ways to construct a `unique_ptr<PseudoRiemannianStructure>` object. One can then define a program that allows the user to choose either way of specifying the metric, and then computes its curvature, as follows:
 
@@ -410,3 +424,26 @@ This directive has the effect of populating `Parameters::g` with the generic met
 	Ricci tensor=[[-1/2*g2^(-1)*g3,0,0],[0,-1/2*g1^(-1)*g3,0],[0,0,1/2*g1^(-1)*g2^(-1)*g3^2]]
 	
 Indices are one-based.
+
+### <a name="alternativeprograms">Alternative programs and code reuse</a>
+
+In situations where one has different programs which share some of the code or functionality, it may be practical to collect all code in a single directory, and treat the whole as an individual program (though of course code interdependence should be kept to a minimum, in order not to hamper code development and maintenance). This is the approach of the `ratatoskr/ratatoskr` executable, which performs some unrelated tasks, among which the user chooses by indicating the appropriate command-line parameter.
+
+To achieve this, replace
+
+	auto program = make_program_description("my program", "program purpose", ...);
+	program.run(argc,argv);
+
+with
+
+	auto program1 = make_program_description(...);
+	auto program2 = make_program_description(...);
+						...
+
+	auto programs = alternative_program_descriptions(program1, program2,...);
+	programs.run(argc,argv);
+	
+Running the executable without parameters has then the effect of printing a list of available programs. To run a specific program, pass the program name as the first command-line parameter (no leading '--'), e.g.
+
+	$./a.out program1 
+

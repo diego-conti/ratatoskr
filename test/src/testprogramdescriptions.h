@@ -72,8 +72,11 @@ public:
 		TS_ASSERT(program_descriptions.run(argc,argv));
 	}
 	void testProgramDescriptions4() {
-		const char* (argv[]) {"program invocation", "noprogram", "--param1=-3", "--param2=2"};
+		const char* (argv[]) {"program invocation", "noprogram", "--param1=-3", "--param2=2", "--silent"};
 		int argc=std::size(argv);
 		TS_ASSERT(!program_descriptions.run(argc,argv));
+	}
+	void testWhitespace() {
+		TS_ASSERT_THROWS(make_program_description("my program with space","", description_strings,[] (auto...) {}), DefinitionError);
 	}
 };
