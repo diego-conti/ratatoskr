@@ -37,4 +37,13 @@ public:
 		TS_ASSERT_EQUALS(parameters.int_and_string,make_pair(-1,"def"s));
 		TS_ASSERT_EQUALS(parameters.string_and_int,make_pair("abc"s,1));
 	}
+	void testSplice() {
+		string s=",123,,321,";
+		TS_ASSERT_EQUALS(splice(s).size(),4);
+		TS_ASSERT_EQUALS(splice(s)[0],"");
+		TS_ASSERT_EQUALS(splice(s)[1],"123");
+		TS_ASSERT_EQUALS(splice(s)[2],"");
+		TS_ASSERT_EQUALS(splice(s)[3],"321");
+
+	}
 };

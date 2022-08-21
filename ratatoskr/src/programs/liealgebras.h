@@ -14,7 +14,7 @@ namespace ExtDerivative {
 	);
 
 	auto program = make_program_description(
-		"ext-derivative", "Compute the exterior derivative of a form a on a Lie algebra",
+		"ext-derivative", "Compute the exterior derivative of a form on a Lie algebra",
 		parameters_description, [] (Parameters& parameters, ostream& os) {
 			os<<parameters.G->d(parameters.form)<<endl;
 		}

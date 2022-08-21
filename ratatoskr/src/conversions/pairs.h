@@ -1,4 +1,5 @@
 namespace ratatoskr {
+
 template<typename Parameters, typename First, typename Second>
 auto comma_separated_pair(pair<First,Second> Parameters::*p) {
 	auto converter=[] (const string& values) {

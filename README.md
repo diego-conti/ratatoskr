@@ -1,6 +1,6 @@
 # Ratatoskr
 
-`ratatoskr` is a header-only library built on top of [Wedge](https://github.com/diego-conti/wedge) to aid in writing command-line based programs to make computations on Lie algebras etc.
+`ratatoskr` is a header-only C++ library built on top of [Wedge](https://github.com/diego-conti/wedge) to aid in writing command-line based programs to make computations on Lie algebras etc.
 
 ## Requirements
 
@@ -12,6 +12,8 @@ To build, run
 	cd build
 	cmake ..
 	cmake --build .
+
+This will build an executable called `ratatoskr` inside `build/ratatoskr`. The executable allows running a few simple programs, which are mainly included to illustrate how the library works, and will be used as examples in this documentation. 
 
 You may need to set the WEDGE_PATH environment variable to point to your installation of Wedge, e.g.
 
@@ -244,24 +246,24 @@ The different types of LieGroup in Wedge require different directives.
 
 	The command-line parameter should be a comma-separated sequence of elements of the Lie algebra of `G`, representing the frame of the subalgebra. For instance, a program to write the structure constants of a subgroup can be written as follows:	
 	
-	struct Parameters {
-		unique_ptr<LieGroupHasParameters<false>> G;
-		unique_ptr<LieGroupHasParameters<false>> H;
-	};
+		struct Parameters {
+			unique_ptr<LieGroupHasParameters<false>> G;
+			unique_ptr<LieGroupHasParameters<false>> H;
+		};
 
-	auto parameters_description=make_parameter_description
-	(
-		"lie-algebra","Lie algebra without parameters",lie_algebra(&Parameters::G),
-		"subalgebra","comma-separated list of generators of the subalgebra",lie_subalgebra(&Parameters::H,&Parameters::G)
-	);
+		auto parameters_description=make_parameter_description
+		(
+			"lie-algebra","Lie algebra without parameters",lie_algebra(&Parameters::G),
+			"subalgebra","comma-separated list of generators of the subalgebra",lie_subalgebra(&Parameters::H,&Parameters::G)
+		);
 
-	auto program = make_program_description(
-		"subalgebra-without-parameters", "Compute the structure constant of a Lie subalgebra",
-		parameters_description, [] (Parameters& parameters, ostream& os) {
-			parameters.H->canonical_print(os);
-			os<<endl;
-		}
-	);
+		auto program = make_program_description(
+			"subalgebra-without-parameters", "Compute the structure constant of a Lie subalgebra",
+			parameters_description, [] (Parameters& parameters, ostream& os) {
+				parameters.H->canonical_print(os);
+				os<<endl;
+			}
+		);
 	
 	Example usage:
 
@@ -305,43 +307,31 @@ The different types of LieGroup in Wedge require different directives.
 
 There are two main classes used in Wedge to define a metric.
 
-	`StandardPseudoRiemannianStructure`. This is the Wedge class for pseudo-Riemannian metrics defined by an orthonormal coframe. Since indefinite metrics are allowed, a signature needs to be specified. The directive to describe this parameter is
-	`metric_by_on_coframe(&Parameters::metric, &Parameters::lie_algebra, &Parameters::signature). The metric should be passed on the command line as a comma-separated list of one-forms. `signature` should be a pair of integers (p,q). The first p entries in the coframe are assumed to be space-like, and the last q time-like.
+- `StandardPseudoRiemannianStructure`. This is the Wedge class for pseudo-Riemannian metrics defined by an orthonormal coframe. Since indefinite metrics are allowed, a signature needs to be specified. The directive to describe this parameter is
+
+	`metric_by_on_coframe(&Parameters::metric, &Parameters::lie_algebra, &Parameters::signature).
 	
-	struct Parameters {
-		unique_ptr<LieGroup> G;
-		unique_ptr<PseudoRiemannianStructure> g;
-		pair<int,int> signature;
-	};
-
-	auto parameters_description=make_parameter_description (
-		"lie-algebra","Lie algebra without parameters",lie_algebra(&Parameters::G),
-		"signature", "signature (p,q)", &Parameters::signature
-		"metric-by-on-coframe","metric defined by a comma-separated list of elements of an orthonormal coframe",metric_by_on_coframe(&Parameters::g,&Parameters::G,&Parameters::signature)
-	);
-
+	 The metric should be passed on the command line as a comma-separated list of one-forms. `signature` should be a pair of integers `(p,q)`. The first `p` entries in the coframe are assumed to be space-like, and the last `q` time-like.
+		
+- `PseudoRiemannianStructureByMatrix`. This is the Wedge class for pseudo-Riemannian metrics defined by a matrix. There are two ways to initialize an object of this type in `ratatoskr`. One applies to diagonal matrices, specified on the command line by the comma-separated list of the coefficients, and uses the directive
 	
- `PseudoRiemannianStructureByMatrix`. This is the Wedge class for pseudo-Riemannian metrics defined by a matrix. Rather than passing each individual entry of the matrix, `ratatoskr` allows the user to pass the metric by specifing the ♭ musical isomorphism, i.e. the comma-separated sequence *e*<sub>1</sub><sup>♭</sup>, ..., *e*<sub>m</sub><sup>♭</sup>. Each *e*<sub>i</sub><sup>♭</sup> is parsed as a differential form (see [differential form parsing](#differentialforms)) relative to the coframe *e<sup>1</sup>*, ..., *e<sup>n</sup>*.
+	diagonal_metric(&Parameters::g,&Parameters::G).	
+	
+For more general matrices, `ratatoskr` allows the user to pass the metric by specifing the ♭ musical isomorphism, i.e. the comma-separated sequence *e*<sub>1</sub><sup>♭</sup>, ..., *e*<sub>m</sub><sup>♭</sup>. Each *e*<sub>i</sub><sup>♭</sup> is parsed as a differential form (see [differential form parsing](#differentialforms)) relative to the coframe *e<sup>1</sup>*, ..., *e<sup>n</sup>*. This is obtained with the directive
 
-	struct Parameters {
-		unique_ptr<LieGroup> G;
-		unique_ptr<PseudoRiemannianStructure> g;
-		pair<int,int> signature;
-	};
-
-	auto parameters_description=make_parameter_description (
-		"lie-algebra","Lie algebra without parameters",lie_algebra(&Parameters::G),
-		"metric-by-flat","metric defined by a comma-separated list of images of frame elements under flat isomorphism",metric_by_flat(&Parameters::g,&Parameters::G)
-	);
+	metric_by_flat(&Parameters::g,&Parameters::G)
 
 ### Alternative parameter descriptions
 
-For some types of parameters, it makes sense to allow the user to choose between different ways of indicating the parameter on the command line. This can be achieved by using the `alternative` directive, which should be followed by a sequence of partial parameter descriptions, each enclosed in parentheses, i.e. `alternative(parameters1...)(parameters2...)`
-Maybe, it should contain a`string` parameter describing its purpose? The alternative descriptions need not populate the same parameters.
+For some types of parameters, it makes sense to allow the user to choose between different ways of indicating the parameter on the command line. This can be achieved by using the `alternative` directive, which should be followed by a string summarizing the meaning of the parameters and a sequence of partial parameter descriptions, each enclosed in parentheses, i.e. 
 
-Notice that this construct is not appropriate when the code that is being run by indicating each option is largely the same; otherwise, it  is advisable to use `alternative_programs`. 
+	alternative(summary)(parameters1...)(parameters2...)
+	
+The alternative descriptions need not populate the same parameters, though they are required to refer to the same `Parameters` class.
 
-For instance, we have seen that pseudo-Riemannian structures can be specified in two ways. These correspond to two different Wedge objects, which have a common ancestor `PseudoRiemannianStructure`; therefore, they can be viewed as alternative ways to construct a `unique_ptr<PseudoRiemannianStructure>` object. One can then define a program that allows the user to choose either way of specifying the metric, and then computes its curvature, as follows:
+Notice that this construct is only appropriate when the code that is being run by indicating each option is largely the same; otherwise, it  is advisable to use `alternative_programs`. 
+
+For instance, we have seen that pseudo-Riemannian structures can be specified in three ways. These correspond to two different Wedge objects, which have a common ancestor `PseudoRiemannianStructure`; therefore, they can be viewed as alternative ways to construct a `unique_ptr<PseudoRiemannianStructure>` object. One can then define a program that allows the user to choose either way of specifying the metric, and then computes its curvature, as follows:
 
 	struct Parameters {
 		unique_ptr<LieGroup> G;
@@ -351,13 +341,16 @@ For instance, we have seen that pseudo-Riemannian structures can be specified in
 
 	auto parameters_description=make_parameter_description (
 		"lie-algebra","Lie algebra without parameters",lie_algebra(&Parameters::G),
-		alternative("pseudo-riemannian metric")(
+		alternative("define a pseudo-riemannian metric")(
 			"signature", "signature (p,q)", comma_separated_pair(&Parameters::signature),
 			"metric-by-on-coframe","metric defined by a comma-separated list of elements of an orthonormal coframe", metric_by_on_coframe(&Parameters::g,&Parameters::G,&Parameters::signature)
 		)(
 			"metric-by-flat", "metric defined by a comma-separated list of images of frame elements under flat isomorphism", metric_by_flat(&Parameters::g,&Parameters::G)
+		)(
+			"diagonal-metric", "metric identified by the comma-separated-list of diagonal elements of its matrix relative to the given frame", diagonal_metric(&Parameters::g,&Parameters::G)
 		)
 	);
+
 	auto program = make_program_description(
 		"curvature", "Compute the curvature of a pseudo-Riemannian metric on a Lie algebra",
 		parameters_description, [] (Parameters& parameters, ostream& os) {

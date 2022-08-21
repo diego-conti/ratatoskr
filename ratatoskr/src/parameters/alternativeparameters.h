@@ -18,7 +18,7 @@ public:
 	}
 	string human_readable_description(int indent=0) const {
 		stringstream s;
-		s<<string(indent,' ')<<description_<<endl;
+		s<<two_column_output("[one of the following]", description_,indent);
 		auto line_sep=string(indent+1,' ')+'+'+string(description_.size()-2,'-');
 		s<<line_sep<<endl;
 		auto add_description = [&s,indent,line_sep] (auto& desc) {

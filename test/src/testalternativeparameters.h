@@ -19,7 +19,7 @@ auto description_metric=make_parameter_description
 		"lie-algebra","Lie algebra without parameters",lie_algebra(&CommandLineParameters::G),
 		alternative("pseudo-riemannian metric on the Lie algebra")
 				("metric-by-musical", "metric defined by the musical 'flat' isomorphism", metric_by_flat(&CommandLineParameters::g,&CommandLineParameters::G))
-				("diagonal-metric", "diagonal metric defined by a space-separated list of coefficients", diagonal_pseudo_riemannian_metric(&CommandLineParameters::g,&CommandLineParameters::G))
+				("diagonal-metric", "diagonal metric defined by a space-separated list of coefficients", diagonal_metric(&CommandLineParameters::g,&CommandLineParameters::G))
 );
 
 
@@ -39,7 +39,7 @@ public:
 	}
 
 	void testParseDiagonalMetric() {
-		const char* (argv[]) {"program invocation", "--lie-algebra=0,0,12", "--diagonal-metric=""-1 -2 3"""};
+		const char* (argv[]) {"program invocation", "--lie-algebra=0,0,12", "--diagonal-metric=-1,-2,3"};
 		int argc=std::size(argv);
 		auto parameters=description_metric.parametersFromCommandLine(argc,argv);
 		auto& G=*(parameters.G);
@@ -55,7 +55,7 @@ public:
 		TS_ASSERT_THROWS(description_metric.parametersFromCommandLine(argc,argv),MissingParameter);
 	}
 	void testTwoMetrics() {
-		const char* (argv[]) {"program invocation", "--lie-algebra=0,0,12", "--metric-by-musical=3,-2*2,1", "--diagonal-metric=""-1 -2 3"""};
+		const char* (argv[]) {"program invocation", "--lie-algebra=0,0,12", "--metric-by-musical=3,-2*2,1", "--diagonal-metric=-1,-2,3"};
 		int argc=std::size(argv);
 		TS_ASSERT_THROWS(description_metric.parametersFromCommandLine(argc,argv),TooManyAlternatives);
 	}

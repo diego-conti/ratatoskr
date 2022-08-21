@@ -46,14 +46,11 @@ matrix diagonal_matrix_from_strings(const vector<string>& s, const lst& symbols)
 }
 
 matrix diagonal_matrix_from_string(const string& s, const lst& symbols) {
-	stringstream stream{s};
-	vector<string> c;
-	std::copy(std::istream_iterator<std::string>(stream),std::istream_iterator<std::string>(),std::back_inserter(c));
-	return diagonal_matrix_from_strings(c,symbols);
+	return diagonal_matrix_from_strings(splice(s),symbols);
 }
 
 template<typename Parameters, typename ParameterType, typename GroupType>
-auto diagonal_pseudo_riemannian_metric(unique_ptr<ParameterType> Parameters::*p,unique_ptr<GroupType> Parameters::*G) {
+auto diagonal_metric(unique_ptr<ParameterType> Parameters::*p,unique_ptr<GroupType> Parameters::*G) {
 	auto converter=[] (const string& parameter, unique_ptr<LieGroup>& G) {
 		lst symbols;
 		auto matrix=diagonal_matrix_from_string(parameter,symbols);

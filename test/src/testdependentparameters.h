@@ -29,7 +29,7 @@ auto description_metric=make_parameter_description
 auto description_diagonal_metric=make_parameter_description
 (
 		"lie-algebra","Lie algebra without parameters",lie_algebra(&CommandLineParameters::G),
-		"metric", "pseudo-riemannian metric on the Lie algebra", diagonal_pseudo_riemannian_metric(&CommandLineParameters::g,&CommandLineParameters::G)
+		"metric", "pseudo-riemannian metric on the Lie algebra", diagonal_metric(&CommandLineParameters::g,&CommandLineParameters::G)
 );
 
 auto description_form=make_parameter_description
@@ -62,7 +62,7 @@ public:
 	}
 
 	void testParseDiagonalMetric() {
-		const char* (argv[]) {"program invocation", "--lie-algebra=0,0,12", "--metric=""-1 -2 3"""};
+		const char* (argv[]) {"program invocation", "--lie-algebra=0,0,12", "--metric=-1,-2,3"};
 		int argc=std::size(argv);
 		auto parameters=description_diagonal_metric.parametersFromCommandLine(argc,argv);
 		auto& G=*(parameters.G);
