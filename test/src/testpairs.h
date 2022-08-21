@@ -26,6 +26,12 @@ auto description=make_parameter_description
 class PairsTestSuite : public CxxTest::TestSuite
 {
 public:
+	void testPairsFrom() {
+		TS_ASSERT_EQUALS((pair_from_csv<int,int>("2,3").first),2);
+		TS_ASSERT_EQUALS((pair_from_csv<int,int>("2,3").second),3);
+		TS_ASSERT_EQUALS((pair_from_csv<string,int>("2,3").first),"2");
+		TS_ASSERT_EQUALS((pair_from_csv<int,string>("2,3").second),"3");
+	}
 	void testPairs() {
 		const char* (argv[]) {"program invocation", "--int-and-float=2,2.01", "--string-and-string=abc,def",
 			"--int-and-string=-1,def", "--string-and-int=abc,1"

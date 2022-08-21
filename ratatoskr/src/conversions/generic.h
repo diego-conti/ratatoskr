@@ -40,7 +40,7 @@ auto generic_metric_from_nonzero_entries(unique_ptr<PseudoRiemannianStructure> P
 	auto converter=[] (const vector<string>& nonzero_entries, unique_ptr<LieGroup>& G,lst& metric_parameters) {
 		unsigned int dimension=G->Dimension();
 		vector<pair<int,int>> nonzero_indices;
-		transform(nonzero_entries.begin(),nonzero_entries.end(),back_inserter(nonzero_indices),pair_from_string<int,int>);
+		transform(nonzero_entries.begin(),nonzero_entries.end(),back_inserter(nonzero_indices),pair_from_csv<int,int>);
 		auto g=generic_symmetric_matrix_from_list_of_nonzero_entries(G->Dimension(),nonzero_indices,metric_parameters);
 		return make_unique<PseudoRiemannianStructureByMatrix>(G.get(),G->e(),g.inverse());
 	};
