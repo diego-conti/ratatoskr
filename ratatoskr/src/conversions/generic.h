@@ -28,6 +28,8 @@ matrix generic_symmetric_matrix_from_list_of_nonzero_entries(int n, const vector
 	matrix m(n,n);
 	for (auto p: indices) {
 		ex newparameter=Parameter{N.a(p.first*10+p.second)};
+		if (p.first<1 || p.first>n) throw ConversionError("index not in range in generic_symmetric_matrix_from_list_of_nonzero_entries");
+		if (p.second<1 || p.second>n) throw ConversionError("index not in range in generic_symmetric_matrix_from_list_of_nonzero_entries");
 		m(p.second-1,p.first-1)= m(p.first-1,p.second-1)=newparameter;
 		Insert(store_parameters,newparameter);
 	}

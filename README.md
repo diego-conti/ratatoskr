@@ -375,3 +375,38 @@ Example usage:
 
 Notice that in both cases the metric is *e<sup>1</sup> ⊗ e<sup>3</sup>+e<sup>3</sup>⊗e<sup>1</sup>+e*<sup>2</sup>⊗e<sup>2</sup>+e*<sup>4</sup>⊗e<sup>4</sup>*, but the output differs because the class `PseudoLeviCivitaConnection` in Wedge uses the frame associated to the structure, which in the first case is the orthonormal frame.
 
+### Creation of generic parameters
+
+A common situation in computations is when a parameter is required to contain the generic element in some space, depending on generic symbols, e.g. the generic symmetrix matrix of order *n*. The following directives are available:
+
+	generic_diagonal_metric(&Parameters::g,&Parameters::G,&Parameterd::metric_parameters)	
+	
+	accepts the following arguments:
+	
+		- `g` is a member of `Parameters` of type `unique_ptr<PseudoRiemannianStructure>` which will be populated with the metric
+		- `G` is a member of `Parameters` of type `unique_ptr<LieGroup>` representing the Lie algebra
+		- `metric_parameters` is a member of `Parameters`of type lst which will contain the symbols used to populate the metric.
+
+This directive has the effect of populating `Parameters::g` with a generic diagonal metric. There are no command-line parameters associated to it.
+
+	generic_metric_from_nonzero_entries	(&Parameters::g,&Parameters::G,&Parameterd::metric_parameters)	
+
+	accepts the following arguments:
+	
+		- `g` is a member of `Parameters` of type `unique_ptr<PseudoRiemannianStructure>` which will be populated with the metric
+		- `G` is a member of `Parameters` of type `unique_ptr<LieGroup>` representing the Lie algebra
+		- `metric_parameters` is a member of `Parameters`of type lst which will contain the symbols used to populate the metric.
+
+This directive has the effect of populating `Parameters::g` with the generic metric for which the only nonzero entries correspond to a fixed subset of the entries are zero. The pairs *row,column* corresponding to nonzero entries should be passed on the command line as a space separated list of comma-separated pairs, e.g.
+
+	$ratatoskr/ratatoskr curvature --lie-algebra 0,0,12 --generic-metric 1,2 3,3
+	(0,0,e1*e2)
+	Curvature=[[3/4*a12^(-1)*(e1*e2)*a33,0,-1/4*a12^(-2)*(e1*e3)*a33^2],[0,-3/4*a12^(-1)*(e1*e2)*a33,-1/4*a12^(-2)*(e2*e3)*a33^2],[1/4*a12^(-1)*(e2*e3)*a33,1/4*a12^(-1)*(e1*e3)*a33,0]]
+	Ricci tensor=[[0,1/2*a12^(-1)*a33,0],[1/2*a12^(-1)*a33,0,0],[0,0,-1/2*a12^(-2)*a33^2]]
+	
+	$ratatoskr/ratatoskr curvature --lie-algebra 0,0,12 --generic-diagonal-metric
+	(0,0,e1*e2)
+	Curvature=[[0,-3/4*g1^(-1)*(e1*e2)*g3,1/4*g1^(-1)*g2^(-1)*(e1*e3)*g3^2],[3/4*g2^(-1)*(e1*e2)*g3,0,1/4*g1^(-1)*g2^(-1)*(e2*e3)*g3^2],[-1/4*g2^(-1)*(e1*e3)*g3,-1/4*g1^(-1)*(e2*e3)*g3,0]]
+	Ricci tensor=[[-1/2*g2^(-1)*g3,0,0],[0,-1/2*g1^(-1)*g3,0],[0,0,1/2*g1^(-1)*g2^(-1)*g3^2]]
+	
+Indices are one-based.
