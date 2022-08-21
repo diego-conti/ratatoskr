@@ -2,7 +2,7 @@
 
 `ratatoskr` is a header-only C++ library built on top of [Wedge](https://github.com/diego-conti/wedge) to aid in writing command-line based programs to make computations on Lie algebras etc.
 
-## Requirements
+## Requirements and installation
 
 `ratatoskr` requires [cmake](https://cmake.org/) and [Wedge](https://github.com/diego-conti/wedge)
 
@@ -24,6 +24,10 @@ You can run some tests by executing
 	ctest --test-dir test
 
 from the `build` directory.	
+
+You can install `ratatoskr` by running
+
+	cmake --install . --prefix=/where/you/want/it
 
 ## <a name="usage">Usage</a>
 
