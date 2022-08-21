@@ -52,11 +52,8 @@ For instance, a program to compute the exterior derivative of a differential for
 			os<<parameters.G->d(parameters.form)<<endl;
 		}
 	);	
-	int main(int argc, char** argv) {
-		program.run(argc,argv);
-	}
 
-This code compiles into an executable which takes two command-line parameters, `--lie-algebra` and `--form` (see [differential form parsing](#differentialforms)), and prints out the exterior derivative of the form relative to the Lie algebra. 
+This program takes two command-line parameters, `--lie-algebra` and `--form` (see [differential form parsing](#differentialforms)), and prints out the exterior derivative of the form relative to the Lie algebra. 
 	
 More examples are available in the subdirectory `programs`. They can be tested by invoking the executable `ratatoskr`, e.g.:
 
@@ -68,32 +65,56 @@ or, for latex output,
 	$ratatoskr/ratatoskr ext-derivative --lie-algebra 0,0,12 --form 3 --latex	
 	e^{12}
 
-Notice that the option `--latex` is not indicated in the parameter description. It is an implicit option available for all programs generated with `make_program_description`, which has the effect of instructing the program to return latex output. Another implicit option is `--silent`, which discards all output. Future versions of `ratatoskr` may introduce more implicit options governing output.
+
+Notice that the option `--latex` is not indicated in the parameter description. It is an implicit option available for all programs generated with `make_program_description`, which has the effect of instructing the program to return latex output. 
+
+Another implicit option is `--silent`, which discards all output. Future versions of `ratatoskr` may introduce more implicit options governing output.
 
 ### Program description
 
 A C++ program may contain more than one 'program' in the sense explained in section [Usage](#usage). Each program is defined by an invocation of the form
 
-	make_program_description("my_program_name", "the purpose of my program", parameter_description, function) 
+	auto program=make_program_description(program_name, program_purpose, parameter_description, function);
 
-### Parameter descriptions
+where
+
+- `program_name` is a string that does not contain any whitespace, giving the program name. It is used in error messages and by [`alternative_program_descriptions`](#alternativeprograms). 
+
+- `program_purpose` is  a human-readable string illustrating what the program does, used in output and error messages.
+
+- `parameter_description` is a variable obtained by invoking [`make_parameter_description`](#param_description), which instructs `ratatoskr` on how to populate the parameters from the command line.
+
+- `function` is a callable object with signature.
+
+`function(Parameters& parameters, ostream& output)`.
+
+On execution, `ratatoskr` populates an object of type `Parameters` according to the contents of the command line and the parameter description, and executes the function, passing the parameters and a stream to be used for output.
+
+Of course, the code above only defines a variable, and does not really run anything. A complete C++ program that actually runs the computation may be obtained by adding to the code the following `main` function:
+
+	int main(int argc, char** argv) {
+		program.run(argc,argv);
+	}
+
+
+### <a name="param_description">Parameter descriptions</a> 
 
 A parameter description is created by invoking the template function `make_parameter_description` with a sequence of arguments of the form
 
-	name, human-readable description, pointer|directive
+	name, human-readable description, pointer-to-member|directive
+	
+where
 
-The name is the command-line name of the parameter. The human-readable description is a string that explains to the user what the parameter represents. 
-
-The third argument instructs `ratatoskr` on how the parameter should be populated using the command line. 
-
-- For types supported by Boost Program Options, a _pointer-to-member_ relative to the class `Parameters` can be specified, e.g. `Parameters::&parameter`. This instructs `ratatoskr` to read the parameter directly. Allowed types for this use include:
-
-	+ numeric types such as `int`, `float`, `double`
+- `name` is the command-line name of the parameter (not containing any whitespace). 
+- `human-readable description` is a string that explains to the user what the parameter represents. 
+-  a _pointer-to-member_ relative to the class `Parameters` can be specified, e.g. `Parameters::&parameter`, 
+ instructs `ratatoskr` to read the parameter directly from the command line. This is only allowed for types supported by Boost Program Options, which include:
+ 	+ numeric types such as `int`, `float`, `double`
 	+ `bool` 
 	+ `string`
 	+ `vector`'s of the above. In the actual program invocation, vectors should be passed as space-separated lists.
 
-- Other types not supported by Boost Program Options can be specified by the use of a _directive_. For instance, a comma-separated pair of integers can be specified by the directive `comma_separated_pair(Parameters::&parameters)`; a GiNaC expression not including symbols can be described by the directive `expression(Parameters::&parameter)`. 
+- a _directive_ is a function call that instructs `ratatoskr` on how to populate the parameter, based on the command line arguments; this method allows types that are not supported by Boost Program Options. For instance, a comma-separated pair of integers can be specified by the directive `comma_separated_pair(Parameters::&parameters)`; a GiNaC expression not including symbols can be described by the directive `expression(Parameters::&parameter)`. 
 
 As an example to illustrate the two uses, consider the following program to convert between different units of measurements. The amount to convert is parsed as a floating point number, whereas the conversion rate is a GiNaC expression which is allowed to be a fraction.
 
@@ -391,25 +412,25 @@ Notice that in both cases the metric is *e<sup>1</sup> ⊗ e<sup>3</sup>+e<sup>3
 
 ### Creation of generic parameters
 
-A common situation in computations is when a parameter is required to contain the generic element in some space, depending on generic symbols, e.g. the generic symmetrix matrix of order *n*. The following directives are available:
+A common situation in computations is when a parameter is required to contain the generic element in some space, depending on generic symbols, e.g. the generic symmetrix matrix of order *n*. The following directives are available.
 
 	generic_diagonal_metric(&Parameters::g,&Parameters::G,&Parameterd::metric_parameters)	
 	
-	accepts the following arguments:
+accepts the following arguments:
 	
-		- `g` is a member of `Parameters` of type `unique_ptr<PseudoRiemannianStructure>` which will be populated with the metric
-		- `G` is a member of `Parameters` of type `unique_ptr<LieGroup>` representing the Lie algebra
-		- `metric_parameters` is a member of `Parameters`of type lst which will contain the symbols used to populate the metric.
+- `g` is a member of `Parameters` of type `unique_ptr<PseudoRiemannianStructure>` which will be populated with the metric.
+- `G` is a member of `Parameters` of type `unique_ptr<LieGroup>` representing the Lie algebra.
+- `metric_parameters` is a member of `Parameters`of type lst which will contain the symbols used to populate the metric.
 
 This directive has the effect of populating `Parameters::g` with a generic diagonal metric. There are no command-line parameters associated to it.
 
 	generic_metric_from_nonzero_entries	(&Parameters::g,&Parameters::G,&Parameterd::metric_parameters)	
 
-	accepts the following arguments:
+accepts the following arguments:
 	
-		- `g` is a member of `Parameters` of type `unique_ptr<PseudoRiemannianStructure>` which will be populated with the metric
-		- `G` is a member of `Parameters` of type `unique_ptr<LieGroup>` representing the Lie algebra
-		- `metric_parameters` is a member of `Parameters`of type lst which will contain the symbols used to populate the metric.
+- `g` is a member of `Parameters` of type `unique_ptr<PseudoRiemannianStructure>` which will be populated with the metric.
+- `G` is a member of `Parameters` of type `unique_ptr<LieGroup>` representing the Lie algebra.
+- `metric_parameters` is a member of `Parameters`of type lst which will contain the symbols used to populate the metric.
 
 This directive has the effect of populating `Parameters::g` with the generic metric for which the only nonzero entries correspond to a fixed subset of the entries are zero. The pairs *row,column* corresponding to nonzero entries should be passed on the command line as a space separated list of comma-separated pairs, e.g.
 
@@ -427,23 +448,52 @@ Indices are one-based.
 
 ### <a name="alternativeprograms">Alternative programs and code reuse</a>
 
-In situations where one has different programs which share some of the code or functionality, it may be practical to collect all code in a single directory, and treat the whole as an individual program (though of course code interdependence should be kept to a minimum, in order not to hamper code development and maintenance). This is the approach of the `ratatoskr/ratatoskr` executable, which performs some unrelated tasks, among which the user chooses by indicating the appropriate command-line parameter.
+In situations where one has different programs which share some of the code or functionality, it may be practical to collect all code in a single directory, and treat the whole as an individual program (though of course code interdependence should be kept to a minimum, in order not to hamper code development and maintenance). This is the approach of the executable `ratatoskr/ratatoskr`, which performs some unrelated tasks, among which the user chooses by indicating the appropriate command-line parameter.
 
 To achieve this, replace
 
-	auto program = make_program_description("my program", "program purpose", ...);
+	auto program = make_program_description("my program", ...);
 	program.run(argc,argv);
 
 with
 
-	auto program1 = make_program_description(...);
-	auto program2 = make_program_description(...);
-						...
+	auto program1 = make_program_description("program1", ...);
+	auto program2 = make_program_description("program2", ...);
+		...
 
-	auto programs = alternative_program_descriptions(program1, program2,...);
+	auto programs = alternative_program_descriptions(program1, program2, ...);
 	programs.run(argc,argv);
 	
-Running the executable without parameters has then the effect of printing a list of available programs. To run a specific program, pass the program name as the first command-line parameter (no leading '--'), e.g.
+Running the executable without parameters has then the effect of printing a list of available programs. To run a specific program, pass the program name as the first command-line parameter (with no leading `--`), e.g.
 
-	$./a.out program1 
+	$./a.out program1 --options...
 
+### Creating more directives
+
+In order to create new directives, one can use the convenience function `generic_converter`. It is used as follows:
+
+	generic_converter(&Parameters::p, converter, &Parameters::other_parameters...)
+where
+	
+- `p` is the parameter that is being populated by this directory, call its type `T`
+- `converter` is a callable object with signature
+
+		T converter(const string& cmdline_parameter, other_parameters...)
+	
+which converts the string argument passed on the command line `cmdline_parameter` into an object of type `T`, optionally using other members of the `Parameters` object. 
+
+- `other_parameters` is a sequence of zero or more pointers to members of `Parameters`. The corresponding elements of the `Parameters` object are passed as arguments to the `converter`.
+
+It is also possible to create directives for parameters that are specified on the command line without an argument (like `--latex`). Such directives are created invoking
+
+	generic_option(&Parameters::p, initializer, &Parameters::other_parameters...)
+
+where	
+- `p` is the parameter that is being populated by this directory, call its type `T`
+- `initializer` is a callable object with signature
+
+	T initializer(other_parameters...)
+	
+which initializes the parameter `Parameters::p`, optionally using other members of the `Parameters` object. 
+
+- `other_parameters` is a sequence of zero or more pointers to members of `Parameters`. The corresponding elements of the `Parameters` object are passed as arguments to the `converter`.

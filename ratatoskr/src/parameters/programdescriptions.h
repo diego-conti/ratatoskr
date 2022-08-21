@@ -36,6 +36,7 @@ public:
 			program(parameters,output_stream(argc,argv));
 		}
 		catch (const CommandLineError& error) {
+			cerr<<command_<<": "<<program_purpose_<<endl;
 			cerr<<error.what()<<endl;
 			cerr<<parameterDescription.human_readable_description();
 		}
