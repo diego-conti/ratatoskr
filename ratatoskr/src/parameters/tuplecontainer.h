@@ -35,7 +35,7 @@ void iterate_over_tuple(const F& function, const Tuple& tuple) {
 
 template<typename T, typename Tuple>
 auto insert_in_tuple(T&& t, Tuple&& tuple) {
-	return tuple_cat(make_tuple(forward<T>(t)),forward<Tuple>(tuple));
+	return tuple_cat(make_tuple(std::forward<T>(t)),std::forward<Tuple>(tuple));
 }
 }
 #endif

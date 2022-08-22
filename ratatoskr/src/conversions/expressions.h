@@ -19,7 +19,7 @@
  *******************************************************************************/
 #ifndef RATATOSKR_EXPRESSIONS_H
 #define RATATOSKR_EXPRESSIONS_H
-#include "input/exfromstring.h"
+#include "../input/exfromstring.h"
 namespace ratatoskr {
 using namespace GiNaC;
 using namespace Wedge;

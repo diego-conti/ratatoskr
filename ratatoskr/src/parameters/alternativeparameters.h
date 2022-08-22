@@ -51,7 +51,7 @@ public:
 	auto operator() (T&&... parameter_descriptions) const {
 		auto new_alternative=make_sequence_of_parameter_descriptions(std::forward<T>(parameter_descriptions)...);
 		auto tuple=tuple_cat(alternatives,make_tuple(new_alternative));
-		return AlternativeParameterDescriptions<decltype(tuple)>(description_,move(tuple));
+		return AlternativeParameterDescriptions<decltype(tuple)>(description_,std::move(tuple));
 	}
 };
 

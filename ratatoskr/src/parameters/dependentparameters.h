@@ -20,7 +20,7 @@
 #ifndef DEPENDENT_PARAMETERS_H
 #define DEPENDENT_PARAMETERS_H
 #include "commandlineparameters.h"
-#include "output/twocolumnoutput.h"
+#include "../output/twocolumnoutput.h"
 #include <type_traits>
 #include <vector>
 namespace ratatoskr {

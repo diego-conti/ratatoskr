@@ -19,7 +19,7 @@
  *******************************************************************************/
 #ifndef GENERIC_H
 #define GENERIC_H
-#include "input/pairfrom.h"
+#include "../input/pairfrom.h"
 namespace ratatoskr {
 using namespace GiNaC;
 using namespace Wedge;
