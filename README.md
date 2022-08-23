@@ -29,6 +29,8 @@ You can install `ratatoskr` by running
 
 	cmake --install . --prefix=/where/you/want/it
 
+from the `build` directory.	 
+
 ## <a name="usage">Usage</a>
 
 A program built over `ratatoskr` consists of the following elements:
@@ -501,3 +503,31 @@ where
 which initializes the parameter `Parameters::p`, optionally using other members of the `Parameters` object. 
 
 - `other_parameters` is a sequence of zero or more pointers to members of `Parameters`. The corresponding elements of the `Parameters` object are passed as arguments to the `converter`.
+
+### <a href="differentialforms">Parsing expressions and differential forms</a>
+
+When parsing GiNaC expressions, `ratatoskr` uses the parsing functions [provided in GiNaC](https://www.ginac.de/tutorial/#Expression-input). When parsing differential forms, the parsing function `ParseDifferentialForm` of Wedge is used. Though this is a part of Wedge, it needs to be documented here to clarify how forms should be entered as command-line parameters inside programs employing  `ratatoskr`.
+
+`ParseDifferentialforms` takes as arguments a coframe, a string to parse and optionally a list of GiNaC symbols. Is loosely based on the notation introduced in 
+
+[S. Salamon: Complex structures on nilpotent Lie algebras. J. Pure Appl. Algebra 157 (2001), no. 2-3, 311--333.](#https://doi.org/10.1016/S0022-4049\(00\)00033-5)
+
+If the coframe takes the form *e<sup>1</sup>,...., e<sup>n</sup>*:
+
+- the digit *0* is intepreted as the zero differential form.
+- a nonzero digit *i* is interpreted as the form *e<sup>i</sup>*. Hex digits are allowed, so this works up to dimension 15. 
+- a sequence of digits *i<sub>1</sub> ... i<sub>n</sub>* is interpreted as the form *e<sup>i<sub>1</sub></sup> ∧ ... ∧ e<sup>i<sub>n</sub></sup>*
+- an expression `coeff*form` is interpreted as a form multiplied by a coefficient. The coefficient can be one of the following
+	+ an integer
+	+ a fraction
+	+ a GiNaC expression enclosed  in square brackets [...]. This expression may include symbols, square roots, etc.
+	+ an expression in parentheses (...)
+- `-form` is interpreted as `form` multiplied by -1.
+- `form1+form2` is interpreted as the sum of the two forms
+- `form1-form2` is interpreted as the difference of the two forms
+
+For instance,
+
+	-12+[a]*34+5*(6+7)+8(9+a)
+	
+determines the form *-e<sup>12</sup>+ a e<sup>34</sup>+5(e<sup>6</sup>+e<sup>7</sup>)+e<sup>8</sup>∧(e<sup>9</sup>+e<sup>10</sup>)*. Notice that for this to work, the symbol *a* (or a list containing it) must be passed as an argument when invoking `ParseDifferentialforms`.
