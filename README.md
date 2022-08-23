@@ -1,6 +1,6 @@
 # Ratatoskr
 
-`ratatoskr` is a header-only C++ library built on top of [Wedge](https://github.com/diego-conti/wedge) to aid in writing command-line based programs to make computations on Lie algebras etc.
+`ratatoskr` is a header-only C++ library built on top of [Wedge](https://github.com/diego-conti/wedge) to aid in writing command-line based programs to make computations on Lie algebras relevant to differential geometry.
 
 ## Requirements and installation
 
