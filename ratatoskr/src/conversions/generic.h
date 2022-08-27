@@ -37,7 +37,7 @@ auto generic_diagonal_metric(unique_ptr<PseudoRiemannianStructure> Parameters::*
 	auto converter=[] (unique_ptr<LieGroup>& G,lst& metric_parameters) {
 		unsigned int dimension=G->Dimension();
 		auto g=generic_diagonal_matrix(dimension,metric_parameters);
-		return make_unique<PseudoRiemannianStructureByMatrix>(G.get(),G->e(),g.inverse());
+		return as_unique(PseudoRiemannianStructureByMatrix::FromMatrixOnFrame(G.get(),G->e(),g));
 	};
 	return generic_option(p,converter,G,metric_parameters);
 }
@@ -63,7 +63,7 @@ auto generic_metric_from_nonzero_entries(unique_ptr<PseudoRiemannianStructure> P
 		vector<pair<int,int>> nonzero_indices;
 		transform(nonzero_entries.begin(),nonzero_entries.end(),back_inserter(nonzero_indices),pair_from_csv<int,int>);
 		auto g=generic_symmetric_matrix_from_list_of_nonzero_entries(G->Dimension(),nonzero_indices,metric_parameters);
-		return make_unique<PseudoRiemannianStructureByMatrix>(G.get(),G->e(),g.inverse());
+		return as_unique(PseudoRiemannianStructureByMatrix::FromMatrixOnFrame(G.get(),G->e(),g));
 	};
 	return generic_converter<vector<string>>(p,converter,G,metric_parameters);
 }

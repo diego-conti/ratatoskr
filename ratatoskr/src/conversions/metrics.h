@@ -45,7 +45,7 @@ template<typename Parameters, typename ParameterType, typename GroupType>
 auto metric_by_flat(unique_ptr<ParameterType> Parameters::*p,unique_ptr<GroupType> Parameters::*G) {
 	auto converter=[] (const string& parameter, unique_ptr<LieGroup>& G) {
 		auto deflat=ParseDifferentialForms(G->e(),parameter.c_str());
-		return make_unique<PseudoRiemannianStructureByMatrix>(G.get(),G->e(),metric_from_eflats(*G,deflat).inverse());
+		return as_unique(PseudoRiemannianStructureByMatrix::FromMatrixOnFrame(G.get(),G->e(),metric_from_eflats(*G,deflat)));
 	};
 	return generic_converter(p,converter,G);
 }
@@ -75,7 +75,7 @@ auto diagonal_metric(unique_ptr<ParameterType> Parameters::*p,unique_ptr<GroupTy
 		auto matrix=diagonal_matrix_from_string(parameter,symbols);
 		if (matrix.rows()!=G->Dimension())
 			throw InvalidParameter("trying to construct diagonal matrix of order "s+to_string(G->Dimension())+" but "+to_string(matrix.rows())+ " entries were specified");
-		return make_unique<PseudoRiemannianStructureByMatrix>(G.get(),G->e(),matrix.inverse());
+		return as_unique(PseudoRiemannianStructureByMatrix::FromMatrixOnFrame(G.get(),G->e(),matrix));
 	};
 	return generic_converter(p,converter,G);
 }

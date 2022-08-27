@@ -515,8 +515,10 @@ When parsing GiNaC expressions, `ratatoskr` uses the parsing functions [provided
 If the coframe takes the form *e<sup>1</sup>,...., e<sup>n</sup>*:
 
 - the digit *0* is intepreted as the zero differential form.
-- a nonzero digit *i* is interpreted as the form *e<sup>i</sup>*. Hex digits are allowed, so this works up to dimension 15. 
-- a sequence of digits *i<sub>1</sub> ... i<sub>n</sub>* is interpreted as the form *e<sup>i<sub>1</sub></sup> ∧ ... ∧ e<sup>i<sub>n</sub></sup>*
+- a nonzero digit *i* is interpreted as the form *e<sup>i</sup>*.
+- a character a-z is interpreted as a 1-form between *e<sup>10</sup>* and *e<sup>35</sup>*
+- a character A-Z is interpreted as a 1-form between *e<sup>36</sup>* and *e<sup>51</sup>*
+- an alphanumeric sequence *i<sub>1</sub> ... i<sub>n</sub>* is interpreted as the form *e<sup>i<sub>1</sub></sup> ∧ ... ∧ e<sup>i<sub>n</sub></sup>*
 - an expression `coeff*form` is interpreted as a form multiplied by a coefficient. The coefficient can be one of the following
 	+ an integer
 	+ a fraction

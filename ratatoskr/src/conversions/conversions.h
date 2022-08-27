@@ -21,6 +21,7 @@
 #define RATATOSKR_CONVERSIONS_H
 #include <wedge/wedge.h>
 #include "errors.h"
+#include "asunique.h"
 #include "../parameters/dependentparameters.h"
 #include "symbols.h"
 #include "expressions.h"
