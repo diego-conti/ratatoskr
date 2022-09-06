@@ -50,29 +50,11 @@ auto metric_by_flat(unique_ptr<ParameterType> Parameters::*p,unique_ptr<GroupTyp
 	return generic_converter(p,converter,G);
 }
 
-matrix diagonal_matrix_from_strings(const vector<string>& s, const lst& symbols) {
-	unsigned int order=static_cast<int>(s.size());
-	matrix r{order,order};
-	for (int i=0;i<order;++i) {
-		try {
-			r(i,i)=ex{s[i],symbols};
-		}
-		catch (...) {
-			throw ParseError(s[i]);
-		}
-	}
-	return r;
-}
-
-matrix diagonal_matrix_from_string(const string& s, const lst& symbols) {
-	return diagonal_matrix_from_strings(splice(s),symbols);
-}
-
 template<typename Parameters, typename ParameterType, typename GroupType>
 auto diagonal_metric(unique_ptr<ParameterType> Parameters::*p,unique_ptr<GroupType> Parameters::*G) {
 	auto converter=[] (const string& parameter, unique_ptr<LieGroup>& G) {
 		lst symbols;
-		auto matrix=diagonal_matrix_from_string(parameter,symbols);
+		auto matrix=diagonal_matrix_from_string_and_lst(parameter,symbols);
 		if (matrix.rows()!=G->Dimension())
 			throw InvalidParameter("trying to construct diagonal matrix of order "s+to_string(G->Dimension())+" but "+to_string(matrix.rows())+ " entries were specified");
 		return as_unique(PseudoRiemannianStructureByMatrix::FromMatrixOnFrame(G.get(),G->e(),matrix));

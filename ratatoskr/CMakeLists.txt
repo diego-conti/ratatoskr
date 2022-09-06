@@ -5,7 +5,7 @@ add_compile_options(-g -O3 -Wctor-dtor-privacy -Wreorder -Wold-style-cast -Wsign
 set(SRC src/ratatoskr.cpp)
 add_executable(ratatoskr ${SRC})
 
-set(CONVERSIONS_HDR asunique.h conversions.h errors.h expressions.h generic.h liealgebras.h metrics.h pairs.h symbols.h)
+set(CONVERSIONS_HDR asunique.h conversions.h errors.h expressions.h generic.h liealgebras.h matrix.h metrics.h pairs.h symbols.h)
 list(TRANSFORM CONVERSIONS_HDR PREPEND src/conversions/)
 set(INPUT_HDR exfromstring.h pairfrom.h splice.h)
 list(TRANSFORM INPUT_HDR PREPEND src/input/)

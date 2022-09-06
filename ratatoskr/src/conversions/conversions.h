@@ -27,6 +27,7 @@
 #include "expressions.h"
 #include "generic.h"
 #include "liealgebras.h"
+#include "matrix.h"
 #include "metrics.h"
 #include "pairs.h"
 #endif

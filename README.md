@@ -184,7 +184,7 @@ It is also possible to define more than one symbol with a single parameter, by u
 
 In this example,  `Parameters::variables` should have type `lst` or `ex`.
 
-## Parameters depending on global symbols
+### Parameters depending on global symbols
 
 As an alternative to defining new symbols on the command line, one can opt to let `ratatoskr` define implicit, global symbols, and use those symbols consistently. This is done by adding an object of type `GlobalSymbols` to `Parameters`. Global symbols need not appear in the parameter description, since they are initialized implicitly. However, they may be appear in directives describing other parameters, which implies that the corresponding string will be associated with fixed symbols when parsing the corresponding command line arguments. Notice that if more  han one `GlobalSymbols` object is used, the symbols will only be instantiated once, and it makes no difference which `GlobalSymbols` symbol is used to access them.
 
@@ -212,6 +212,31 @@ Example usage:
 	2*x*y
 
 Global symbols that are implicitly defined currently consists of single-letter symbols, either Roman or Greek.
+
+### Matrices
+
+Matrix objects of type `GiNaC::matrix` can be created by the directives `matrix_by_elements` and `diagonal_matrix`. The resulting matrix can be stored either in a `GiNaC::matrix` object or a `GiNaC::ex` object. The directive `matrix_by_elements` requires all the matrix entries to be specified on the command line; each row of the matrix should be a comma-separated list of entries, and the rows must be separated by a space. The directive `diagonal_matrix` takes a comma-separated list of the diagonal elements; the nondiagonal entries are taken to be zero.
+
+For instance, the following program computes the inverse of a matrix.
+
+	struct Parameters {
+		GlobalSymbols symbols;
+		matrix m;
+	};
+	auto parameters_description = make_parameter_description(
+		"matrix", "a matrix, written by a space-separated list of lists of comma-separated values",matrix_by_elements(&Parameters::m,&Parameters::symbols)
+	);
+	auto program = make_program_description(
+		"invert", "compute the inverse of a matrix",
+		parameters_description, [] (Parameters& parameters, ostream& os) {
+			os<<parameters.m.inverse()<<endl;
+		}
+	);
+
+Example usage:
+
+	$ratatoskr/ratatoskr invert --matrix=1,a 0,1
+	$[[1,-a],[0,1]]
 
 ### Lie algebras	
 

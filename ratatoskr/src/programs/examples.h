@@ -70,3 +70,21 @@ auto program = make_program_description(
 	}
 );
 }
+
+namespace Invert {
+	struct Parameters {
+		GlobalSymbols symbols;
+		matrix m;
+	};
+	auto parameters_description = make_parameter_description(
+		alternative("the matrix to invert")
+		("matrix", "a matrix, written by a space-separated list of lists of comma-separated values",matrix_by_elements(&Parameters::m,&Parameters::symbols))
+		("diagonal-matrix", "a diagonal matrix, written by a comma-separated list of the diagonal entries",diagonal_matrix(&Parameters::m,&Parameters::symbols))
+	);
+	auto program = make_program_description(
+		"invert", "compute the inverse of a matrix",
+		parameters_description, [] (Parameters& parameters, ostream& os) {
+			os<<parameters.m.inverse()<<endl;
+		}
+	);
+}

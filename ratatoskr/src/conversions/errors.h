@@ -28,5 +28,9 @@ public:
 	ConversionError(const std::string& error) : CommandLineError{"error parsing parameter: "s+error} {}
 };
 
+class UnevenMatrix : public CommandLineError {
+public:
+	UnevenMatrix(int r, int c) : CommandLineError{"uneven matrix: expecting a sequence of "+to_string(r)+" rows, each with "+to_string(c)+" elements separated by a comma"} {}
+};
 }
 #endif
