@@ -52,7 +52,7 @@ auto description_double=make_parameter_description (
 );
 
 struct ManySymbolsParameters {
-	ex symbols;
+	Symbols symbols;
 	ex x;
 };
 auto description_many_symbols = make_parameter_description(
@@ -105,7 +105,7 @@ public:
 		const char* (argv[]) {"program invocation", "--x=a+b", "--symbols=z", "x",  "y", "a", "b"};
 		int argc=std::size(argv);
 		auto parameters=description_many_symbols.parametersFromCommandLine(argc,argv);
-		TS_ASSERT_EQUALS(parameters.x,parameters.symbols.op(3)+parameters.symbols.op(4));
+		TS_ASSERT_EQUALS(parameters.x,parameters.symbols.symbols().op(3)+parameters.symbols.symbols().op(4));
 
 	}
 

@@ -52,9 +52,8 @@ auto metric_by_flat(unique_ptr<ParameterType> Parameters::*p,unique_ptr<GroupTyp
 
 template<typename Parameters, typename ParameterType, typename GroupType>
 auto diagonal_metric(unique_ptr<ParameterType> Parameters::*p,unique_ptr<GroupType> Parameters::*G) {
-	auto converter=[] (const string& parameter, unique_ptr<LieGroup>& G) {
-		lst symbols;
-		auto matrix=diagonal_matrix_from_string_and_lst(parameter,symbols);
+	auto converter=[] (const string& parameter, unique_ptr<LieGroup>& G) {		
+		auto matrix=diagonal_matrix_from_string(parameter,Symbols{});
 		if (matrix.rows()!=G->Dimension())
 			throw InvalidParameter("trying to construct diagonal matrix of order "s+to_string(G->Dimension())+" but "+to_string(matrix.rows())+ " entries were specified");
 		return as_unique(PseudoRiemannianStructureByMatrix::FromMatrixOnFrame(G.get(),G->e(),matrix));

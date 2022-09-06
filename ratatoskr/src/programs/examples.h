@@ -39,7 +39,7 @@ auto program = make_program_description(
 namespace Derivative {
 struct Parameters {
 	ex function;
-	ex variable;
+	Symbol<> variable;
 };
 auto parameters_description=make_parameter_description(
 	"variable","a variable",new_symbol(&Parameters::variable),
@@ -48,7 +48,7 @@ auto parameters_description=make_parameter_description(
 auto program = make_program_description(
 	"derivative", "Take the derivative of a function of one variable",
 	parameters_description, [] (Parameters& parameters, ostream& os) {
-		os<<parameters.function.diff(ex_to<symbol>(parameters.variable))<<endl;
+		os<<parameters.function.diff(parameters.variable)<<endl;
 	}
 );
 }

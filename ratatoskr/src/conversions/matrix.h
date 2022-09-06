@@ -23,14 +23,14 @@ namespace ratatoskr {
 using namespace GiNaC;
 using namespace Wedge;
 
-inline matrix matrix_from_string_matrix(const vector<vector<string>>&m, const lst& symbols) {
+inline matrix matrix_from_string_matrix(const vector<vector<string>>&m, const Symbols& symbols) {
     if (m.empty()) return matrix{};
     matrix result(m.size(),m[0].size());
     for (int i=0;i<result.rows();++i) {
         if (m[i].size()!=result.cols()) throw UnevenMatrix(result.rows(),result.cols());        
         for (int j=0;j<result.cols();++j) {        
             try  {
-                result(i,j)=ex{m[i][j],symbols};
+                result(i,j)=symbols.ex_from_string(m[i][j]);
             }    
             catch (...) {
                 throw ParseError(m[i][j]);
@@ -40,41 +40,29 @@ inline matrix matrix_from_string_matrix(const vector<vector<string>>&m, const ls
     return result;
 }
 
-inline matrix matrix_from_rows_and_lst(const vector<string>& s, const lst& symbols) {
+inline matrix matrix_from_rows(const vector<string>& s, const Symbols& symbols) {
     vector<vector<string>> elements;
     std::transform(s.begin(),s.end(),std::back_inserter(elements),[] (auto& string) {return splice(string);});
-    return matrix_from_string_matrix(elements,symbols);
+    return matrix_from_string_matrix(elements,symbols.symbols());
 }
-inline matrix diagonal_matrix_from_strings(const vector<string>& s, const lst& symbols) {
+inline matrix diagonal_matrix_from_strings(const vector<string>& s, const Symbols& symbols) {
 	unsigned int order=static_cast<int>(s.size());
 	matrix r{order,order};
-	for (int i=0;i<order;++i) {
-		try {
-			r(i,i)=ex{s[i],symbols};
-		}
-		catch (...) {
-			throw ParseError(s[i]);
-		}
-	}
+	for (int i=0;i<order;++i)
+		r(i,i)=symbols.ex_from_string(s[i]);
 	return r;
 }
-inline matrix matrix_from_rows(const vector<string>& s, const GlobalSymbols& symbols) {
-    return matrix_from_rows_and_lst(s,symbols.symbols());
-}
-inline matrix diagonal_matrix_from_string(const string& s, const GlobalSymbols& symbols) {
-	return diagonal_matrix_from_strings(splice(s),symbols.symbols());
-}
-inline matrix diagonal_matrix_from_string_and_lst(const string& s, const lst& symbols) {
+inline matrix diagonal_matrix_from_string(const string& s, const Symbols& symbols) {
 	return diagonal_matrix_from_strings(splice(s),symbols);
 }
-
-template<typename Parameters, typename ParameterType>
-auto matrix_by_elements(ParameterType Parameters::*p,GlobalSymbols Parameters::*symbols) {
+ 
+template<typename Parameters, typename ParameterType, typename Symbols>
+auto matrix_by_elements(ParameterType Parameters::*p,Symbols Parameters::*symbols) {
 	return generic_converter<vector<string>>(p,matrix_from_rows,symbols);
 }
 
-template<typename Parameters, typename ParameterType>
-auto diagonal_matrix(ParameterType Parameters::*p,GlobalSymbols Parameters::*symbols) {
+template<typename Parameters, typename ParameterType, typename Symbols>
+auto diagonal_matrix(ParameterType Parameters::*p,Symbols Parameters::*symbols) {
 	return generic_converter(p,diagonal_matrix_from_string,symbols);
 }
 

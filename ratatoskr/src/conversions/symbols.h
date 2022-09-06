@@ -24,6 +24,7 @@ using namespace Wedge;
 
 WEDGE_DECLARE_NAMED_ALGEBRAIC(Parameter,realsymbol);
 
+
 template<typename... Name>
 lst make_symbols(Name&&... name) {
 	return lst{Parameter{std::forward<Name>(name)}...};
@@ -41,21 +42,58 @@ struct GlobalSymbols {
 	}
 };
 
+template<class SymbolClass=symbol>
+class Symbol {
+	ex symbol;
+public:	
+	Symbol()=default;
+	Symbol(const string& name) : symbol{SymbolClass{name}} 
+	{}
+	lst symbols() const {
+		return lst{symbol};
+	}	
+	operator SymbolClass () const {
+		return ex_to<SymbolClass>(symbol);
+	}
+};
 
-template<typename Parameters, typename SymbolClass=symbol>
-auto new_symbol(ex Parameters::*p) {
+class Symbols {
+	lst symbols_;
+public:
+	Symbols() = default;
+	Symbols(const GlobalSymbols& symbols) : symbols_(symbols.symbols()) {}
+	Symbols(const lst& symbols) : symbols_(symbols) {}
+	template<class SymbolClass>
+	Symbols(const Symbol<SymbolClass>& symbol) : symbols_(symbol.symbols()) {}
+	lst symbols() const {
+		return symbols_;
+	}
+	ex ex_from_string(const string& s) const {
+		try {
+			return ex{s,symbols_};
+		}
+		catch (...) {
+			cerr<<s<<endl;
+			cerr<<symbols_<<endl;
+			throw ParseError{s};
+		}
+	}
+};
+
+template<typename Parameters, typename SymbolClass>
+auto new_symbol(Symbol<SymbolClass> Parameters::*p) {
 	auto converter=[] (const string& parameter) {
-		return ex{SymbolClass{parameter}};
+		return Symbol<SymbolClass>{parameter};
 	};
 	return generic_converter(p,converter);
 }
 
 template<typename Parameters, typename SymbolClass=symbol>
-auto new_symbols(ex Parameters::*p) {
+auto new_symbols(Symbols Parameters::*p) {
 	auto converter=[] (const vector<string>& parameter) {
 		lst result;
 		for (auto& x: parameter) result.append(ex{SymbolClass{x}});
-		return result;
+		return Symbols{result};
 	};
 	return generic_converter<vector<string>>(p,converter);
 }

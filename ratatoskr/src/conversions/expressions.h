@@ -48,20 +48,13 @@ auto expression(ex Parameters::*p) {
 	return generic_converter(p,converter);
 }
 
-template<typename Parameters>
-auto expression(ex Parameters::*p, ex Parameters::*symbols) {
-	auto converter=[] (const string& parameter, ex symbols) {
-		return ex_from_string(parameter,symbols);
+template<typename Parameters, typename SymbolsClass>
+auto expression(ex Parameters::*p, SymbolsClass Parameters::*symbols) {
+	auto converter=[] (const string& parameter, const Symbols& symbols) {
+		return symbols.ex_from_string(parameter);
 	};
 	return generic_converter(p,converter,symbols);
 }
 
-template<typename Parameters>
-auto expression(ex Parameters::*p, GlobalSymbols Parameters::*symbols) {
-	auto converter=[] (const string& parameter, const GlobalSymbols& symbols) {
-		return ex{parameter,symbols.symbols()};
-	};
-	return generic_converter(p,converter,symbols);
-}
 }
 #endif
