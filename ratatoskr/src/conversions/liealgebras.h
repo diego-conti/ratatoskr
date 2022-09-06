@@ -30,20 +30,14 @@ auto lie_algebra(unique_ptr<ParameterType> Parameters::*p) {
 	};
 	return generic_converter(p,converter);
 }
-template<typename Parameters, typename ParameterType>
-auto lie_algebra(unique_ptr<ParameterType> Parameters::*p, GlobalSymbols Parameters::*symbols) {
-	auto converter=[] (const string& parameter, const GlobalSymbols& symbols) {
+template<typename Parameters, typename ParameterType, typename SymbolsClass>
+auto lie_algebra(unique_ptr<ParameterType> Parameters::*p, SymbolsClass Parameters::*symbols) {
+	auto converter=[] (const string& parameter, const Symbols& symbols) {
 		return make_unique<AbstractLieGroup<true>>(parameter,symbols.symbols());
 	};
 	return generic_converter(p,converter,symbols);
 }
-template<typename Parameters, typename ParameterType>
-auto lie_algebra(unique_ptr<ParameterType> Parameters::*p, ex Parameters::*symbols) {
-	auto converter=[] (const string& parameter, ex symbols) {
-		return make_unique<AbstractLieGroup<true>>(parameter,symbols);
-	};
-	return generic_converter(p,converter,symbols);
-}
+
 
 unique_ptr<AbstractLieSubgroup<true>>
 make_subgroup(const LieGroupHasParameters<true>& G, const exvector& subalgebra) {
@@ -62,9 +56,9 @@ auto lie_subalgebra(unique_ptr<LieSubgroupType> Parameters::*p, unique_ptr<LieGr
 	return generic_converter(p,converter,G);
 }
 
-template<typename Parameters, typename LieSubgroupType, typename LieGroupType>
-auto lie_subalgebra(unique_ptr<LieSubgroupType> Parameters::*p, unique_ptr<LieGroupType> Parameters::*G, GlobalSymbols Parameters::*symbols) {
-	auto converter=[] (const string& parameter, const unique_ptr<LieGroupType>& G, const GlobalSymbols& symbols) {
+template<typename Parameters, typename LieSubgroupType, typename LieGroupType, typename SymbolsClass>
+auto lie_subalgebra(unique_ptr<LieSubgroupType> Parameters::*p, unique_ptr<LieGroupType> Parameters::*G, SymbolsClass Parameters::*symbols) {
+	auto converter=[] (const string& parameter, const unique_ptr<LieGroupType>& G, const Symbols& symbols) {
 		return make_unique<AbstractLieSubgroup<true>>(*G,ParseDifferentialForms(G->e(),parameter.c_str(),symbols.symbols()));
 	};
 	return generic_converter(p,converter,G,symbols);

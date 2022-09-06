@@ -7,7 +7,7 @@ add_executable(ratatoskr ${SRC})
 
 set(CONVERSIONS_HDR asunique.h conversions.h errors.h expressions.h generic.h liealgebras.h matrix.h metrics.h pairs.h symbols.h)
 list(TRANSFORM CONVERSIONS_HDR PREPEND src/conversions/)
-set(INPUT_HDR exfromstring.h pairfrom.h splice.h)
+set(INPUT_HDR pairfrom.h splice.h)
 list(TRANSFORM INPUT_HDR PREPEND src/input/)
 set(OUTPUT_HDR twocolumnoutput.h)
 list(TRANSFORM OUTPUT_HDR PREPEND src/output/)

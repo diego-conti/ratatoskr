@@ -19,6 +19,8 @@
  *******************************************************************************/
 #ifndef PAIR_FROM_H
 #define PAIR_FROM_H
+#include "splice.h"
+
 namespace ratatoskr {
 /** @brief returns a pair object from a string. The string should be formatted as a sequence of two strings convertible to U and V, interleaved by a single character */
 
