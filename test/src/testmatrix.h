@@ -34,6 +34,11 @@ struct CommandLineParameters {
 
 auto description_diagonal=make_parameter_description
 (
+		"diagonal-matrix","a diagonal matrix, written by a comma-separated list of values",diagonal_matrix(&CommandLineParameters::m)
+);
+
+auto description_diagonal_parameters=make_parameter_description
+(
 		"diagonal-matrix","a diagonal matrix, written by a comma-separated list of values",diagonal_matrix(&CommandLineParameters::m,&CommandLineParameters::symbols)
 );
 
@@ -52,6 +57,15 @@ public:
         TS_ASSERT_EQUALS(parameters.m.rows(),3);
         TS_ASSERT_EQUALS(parameters.m.cols(),3);
         TS_ASSERT_EQUALS(parameters.m,(matrix{{10,0,0},{0,20,0},{0,0,30}}));		
+	}
+	void testDiagonalMatrixParameters() {
+		const char* (argv[]) {"program invocation", "--diagonal-matrix=a,2*a,3*a"};
+		int argc=std::size(argv);
+		auto parameters=description_diagonal_parameters.parametersFromCommandLine(argc,argv);
+        TS_ASSERT_EQUALS(parameters.m.rows(),3);
+        TS_ASSERT_EQUALS(parameters.m.cols(),3);
+        //ex a=parameters.symbols.by_name("a");
+        //TS_ASSERT_EQUALS(parameters.m,(matrix{{a,0,0},{0,2*a,0},{0,0,3*a}}));		
 	}
 	void testMatrixByElements() {
 		const char* (argv[]) {"program invocation", "--matrix=1,2,3", "4,5,6", "7,8,9"};

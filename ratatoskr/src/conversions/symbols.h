@@ -40,6 +40,11 @@ struct GlobalSymbols {
 		);
 		return symbols;
 	}
+	ex by_name(const string& s) {
+		for (auto x: symbols())
+			if (ex_to<Parameter>(x).get_name()==s) return x;
+		throw NoSymbolWithName(s);
+	}
 };
 
 template<class SymbolClass=symbol>

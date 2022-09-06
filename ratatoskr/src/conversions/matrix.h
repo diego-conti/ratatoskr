@@ -55,15 +55,25 @@ inline matrix diagonal_matrix_from_strings(const vector<string>& s, const Symbol
 inline matrix diagonal_matrix_from_string(const string& s, const Symbols& symbols) {
 	return diagonal_matrix_from_strings(splice(s),symbols);
 }
- 
+
 template<typename Parameters, typename ParameterType, typename Symbols>
 auto matrix_by_elements(ParameterType Parameters::*p,Symbols Parameters::*symbols) {
 	return generic_converter<vector<string>>(p,matrix_from_rows,symbols);
+}
+template<typename Parameters, typename ParameterType, typename Symbols>
+auto matrix_by_elements(ParameterType Parameters::*p) {
+    auto converter = [] (const string& parameter) {return matrix_from_rows(parameter,Symbols{});};
+	return generic_converter<vector<string>>(p,converter);
 }
 
 template<typename Parameters, typename ParameterType, typename Symbols>
 auto diagonal_matrix(ParameterType Parameters::*p,Symbols Parameters::*symbols) {
 	return generic_converter(p,diagonal_matrix_from_string,symbols);
+}
+template<typename Parameters, typename ParameterType>
+auto diagonal_matrix(ParameterType Parameters::*p) {
+    auto converter = [] (const string& parameter) {return diagonal_matrix_from_string(parameter,Symbols{});};
+	return generic_converter(p,converter);
 }
 
 }

@@ -32,5 +32,10 @@ class UnevenMatrix : public CommandLineError {
 public:
 	UnevenMatrix(int r, int c) : CommandLineError{"uneven matrix: expecting a sequence of "+to_string(r)+" rows, each with "+to_string(c)+" elements separated by a comma"} {}
 };
+
+class NoSymbolWithName : invalid_argument {
+public:
+	NoSymbolWithName(const string& s) : invalid_argument("There is no symbol whose name is "+s) {}
+};
 }
 #endif
