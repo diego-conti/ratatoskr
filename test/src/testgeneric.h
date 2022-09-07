@@ -47,6 +47,13 @@ auto description_nonzero_entries=make_parameter_description
 			generic_metric_from_nonzero_entries(&CommandLineParameters::g,&CommandLineParameters::G,&CommandLineParameters::metric_parameters)
 );
 
+auto description_zero_entries=make_parameter_description
+(
+		"lie-algebra","Lie algebra with parameters",lie_algebra(&CommandLineParameters::G,&CommandLineParameters::symbols),
+		"generic-metric-from-zero-entries","generic metric from list of zero entries",
+			generic_metric_from_zero_entries(&CommandLineParameters::g,&CommandLineParameters::G,&CommandLineParameters::metric_parameters)
+);
+
 class GenericTestSuite : public CxxTest::TestSuite
 {
 public:
@@ -70,5 +77,16 @@ public:
 		TS_ASSERT_EQUALS(parameters.metric_parameters.nops(),2);
 		TS_ASSERT_EQUALS(g.ScalarProduct().Flat(G.e(1)),parameters.metric_parameters.op(0)*G.e(2));
 		TS_ASSERT_EQUALS(g.ScalarProduct().Flat(G.e(3)),parameters.metric_parameters.op(1)*G.e(4));
+	}
+	void testGenericMetricFromZeroEntries() {
+		const char* (argv[]) {"program invocation", "--lie-algebra=0,0", "--generic-metric-from-zero-entries=1,1", "2,2"};
+		int argc=std::size(argv);
+		auto parameters=description_zero_entries.parametersFromCommandLine(argc,argv);
+		auto& G=*(parameters.G);
+		auto& g=*(parameters.g);
+		TS_ASSERT_EQUALS(parameters.metric_parameters.nops(),1);
+		TS_ASSERT_EQUALS(g.ScalarProduct().Flat(G.e(1)),parameters.metric_parameters.op(0)*G.e(2));
+		TS_ASSERT_EQUALS(g.ScalarProduct().Flat(G.e(2)),parameters.metric_parameters.op(0)*G.e(1));
+		
 	}
 };

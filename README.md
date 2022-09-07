@@ -491,6 +491,10 @@ This directive has the effect of populating `Parameters::g` with the generic met
 	
 Indices are one-based.
 
+	generic_metric_from_zero_entries	(&Parameters::g,&Parameters::G,&Parameterd::metric_parameters)	
+
+is similar to `generic_metric_from_nonzero_entries`, except the user must indicate the pairs for which the entry is zero on the command line
+
 ### <a name="alternativeprograms">Alternative programs and code reuse</a>
 
 In situations where one has different programs which share some of the code or functionality, it may be practical to collect all code in a single directory, and treat the whole as an individual program (though of course code interdependence should be kept to a minimum, in order not to hamper code development and maintenance). This is the approach of the executable `ratatoskr/ratatoskr`, which performs some unrelated tasks, among which the user chooses by indicating the appropriate command-line parameter.
