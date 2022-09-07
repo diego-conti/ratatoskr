@@ -145,22 +145,22 @@ As an example to illustrate the two uses, consider the following program to conv
 
 ### Parameters depending on other parameters
 
-For programs which require introducing new symbols, `ratatoskr` enables the creation of a new symbol with a name indicated in the command line. The parameter should be described by the directive `new_symbol(&Parameters::x)`, which has the effect of populating the member `x` of the struct `Parameters` with a new symbol. The class of the symbol can be optionally be specified as a template parameter, e.g. `new_symbol<realsymbol>(&Parameters::x)`. Notice that symbols should always be _stored_ as `ex` objects, no matter what type is used to define them.
+For programs which require introducing new symbols, `ratatoskr` enables the creation of a new symbol with a name indicated in the command line. The parameter should be described by the directive `new_symbol(&Parameters::x)`, which has the effect of populating the member `x` of the struct `Parameters` with a new symbol. The member `x` should have type `Symbol<SymbolClass>`, where `SymbolClass` is a class derived from `symbol` which is used to store the symbol, e.g. `symbol`, `realsymbol`, `possymbol`, or a class defined with `WEDGE_DECLARE_ALGEBRAIC`. Objects of type `Symbol<SymbolClass>` can be implicitly converted to `SymbolClass`.
 
 For instance, the following program computes the derivative of a function of one variable.
 
 	struct Parameters {
 		ex function;
-		ex variable;
+		Symbol<realsymbol> variable;
 	};
 	auto parameters_description=make_parameter_description(
 		"variable","a variable",new_symbol(&Parameters::variable),
 		"function","a function of one variable",expression(&Parameters::function,&Parameters::variable)
 	);
 	auto program = make_program_description(
-		"derivative", "take the derivative of a function of one variable",
+		"derivative", "Take the derivative of a function of one variable",
 		parameters_description, [] (Parameters& parameters, ostream& os) {
-			os<<parameters.function.diff(ex_to<symbol>(parameters.variable))<<endl;
+			os<<parameters.function.diff(parameters.variable)<<endl;
 		}
 	);
 
@@ -178,11 +178,23 @@ Order is important in the parameter description: any parameter should appear aft
 
 It is also possible to define more than one symbol with a single parameter, by using the directive `new_symbols` to describe a space-separated list of symbols, i.e.
 
+	struct Parameters {		
+		Symbols variables;
+		...
+	};
+
 	auto parameters_description=make_parameter_description(
 		"variables","new variables",new_symbols(&Parameters::variables)
 	);
 
-In this example,  `Parameters::variables` should have type `lst` or `ex`.
+The class `Symbols` is used internally for parsing GiNaC expressions, and its interface is as follows:
+
+	class Symbols {
+	public:
+		lst symbols() const;	//returns a list of symbols
+		ex ex_from_string(const string& s) const;	//convert a string to a GiNaC expression possibly including symbols
+		...
+	};
 
 ### Parameters depending on global symbols
 
@@ -224,7 +236,9 @@ For instance, the following program computes the inverse of a matrix.
 		matrix m;
 	};
 	auto parameters_description = make_parameter_description(
+		alternative
 		"matrix", "a matrix, written by a space-separated list of lists of comma-separated values",matrix_by_elements(&Parameters::m,&Parameters::symbols)
+		"diagonal-matrix", "a diagonal matrix, written by a comma-separated list of the diagonal entries",diagonal_matrix(&Parameters::m,&Parameters::symbols)
 	);
 	auto program = make_program_description(
 		"invert", "compute the inverse of a matrix",
@@ -296,7 +310,7 @@ The different types of LieGroup in Wedge require different directives.
 	Alternatively:
 
 		struct Parameters {
-			ex symbols;
+			Symbols symbols;
 			unique_ptr<LieGroup> G;
 		};
 		auto description=make_parameter_description (
