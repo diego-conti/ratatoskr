@@ -32,6 +32,7 @@ struct CommandLineParameters {
 	pair<string,string> string_and_string;
 	pair<int,string> int_and_string;
 	pair<string,int> string_and_int;
+	vector<pair<int,int>> pairs;
 };
 
 auto description=make_parameter_description
@@ -39,7 +40,8 @@ auto description=make_parameter_description
 		"int-and-float","int and float", comma_separated_pair(&CommandLineParameters::int_and_float),
 		"string-and-string","string and string", comma_separated_pair(&CommandLineParameters::string_and_string),
 		"int-and-string","int and string", comma_separated_pair(&CommandLineParameters::int_and_string),
-		"string-and-int","string and int", comma_separated_pair(&CommandLineParameters::string_and_int)
+		"string-and-int","string and int", comma_separated_pair(&CommandLineParameters::string_and_int),
+		"pairs", "a list of pairs", vector_of_comma_separated_pairs(&CommandLineParameters::pairs)
 );
 
 class PairsTestSuite : public CxxTest::TestSuite
@@ -53,7 +55,7 @@ public:
 	}
 	void testPairs() {
 		const char* (argv[]) {"program invocation", "--int-and-float=2,2.01", "--string-and-string=abc,def",
-			"--int-and-string=-1,def", "--string-and-int=abc,1"
+			"--int-and-string=-1,def", "--string-and-int=abc,1", "--pairs=1,2", "3,4"
 		};
 		int argc=std::size(argv);
 		auto parameters=description.parametersFromCommandLine(argc,argv);
@@ -61,6 +63,9 @@ public:
 		TS_ASSERT_EQUALS(parameters.string_and_string,make_pair("abc"s,"def"s));
 		TS_ASSERT_EQUALS(parameters.int_and_string,make_pair(-1,"def"s));
 		TS_ASSERT_EQUALS(parameters.string_and_int,make_pair("abc"s,1));
+		TS_ASSERT_EQUALS(parameters.pairs.size(),2);
+		TS_ASSERT_EQUALS(parameters.pairs[0],make_pair(1,2));
+		TS_ASSERT_EQUALS(parameters.pairs[1],make_pair(3,4));
 	}
 	void testSplice() {
 		string s=",123,,321,";

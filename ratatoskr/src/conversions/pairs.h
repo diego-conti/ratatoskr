@@ -31,4 +31,19 @@ auto comma_separated_pair(pair<First,Second> Parameters::*p) {
 	};
 	return generic_converter(p,converter);
 }
+
+template<typename Parameters, typename First, typename Second>
+auto vector_of_comma_separated_pairs(vector<pair<First,Second>> Parameters::*p) {
+	auto converter=[] (const vector<string>& values) {
+		vector<pair<First,Second>> result;
+		try {
+			transform(values.begin(),values.end(),back_inserter(result), pair_from_csv<First,Second>);
+			return result;
+		}
+		catch (PairParseError& e) {
+			throw ConversionError(e.what());
+		}
+	};
+	return generic_converter<vector<string>>(p,converter);
+}
 }
