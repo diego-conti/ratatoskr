@@ -100,3 +100,21 @@ namespace SubalgebraWithParameters {
 		}
 	);
 }
+
+namespace Derivations {
+	struct Parameters {
+		unique_ptr<LieGroupHasParameters<false>> G;
+	};
+	auto parameters_description=make_parameter_description
+	(
+		"lie-algebra","Lie algebra without parameters",lie_algebra(&Parameters::G)
+	);
+
+	auto program = make_program_description(
+		"derivations", "Compute the derivations of a Lie algebra",
+		parameters_description, [] (Parameters& parameters, ostream& os) {
+			GL gl(parameters.G->Dimension());
+			os<<derivations(*parameters.G,gl)<<endl;			
+		}
+	);
+}
