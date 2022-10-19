@@ -6,7 +6,7 @@ project(Ratatoskr VERSION 0.1)
 
 set(CXXTEST_DIR ${CMAKE_SOURCE_DIR}/cxxtest) 
 include_directories(${CXXTEST_DIR} ${CXXTEST_DIR}/cxxtest $ENV{WEDGE_PATH}/include)
-link_libraries(wedge ginac cocoa gmp boost_program_options)
+link_libraries(wedge ginac cocoa gmp boost_program_options cln)
 link_directories($ENV{WEDGE_PATH}/lib)
 
 include_directories(${CMAKE_SOURCE_DIR}/ratatoskr/src)

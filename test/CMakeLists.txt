@@ -54,3 +54,6 @@ add_test(NAME curvature_on_frame_test COMMAND ratatoskr curvature --lie-algebra 
 set_tests_properties(curvature_on_frame_test PROPERTIES PASS_REGULAR_EXPRESSION "Ricci tensor=\\[\\[1/2,0,0,0\\],\\[0,0,0,0\\],\\[0,0,-1/2,0\\],\\[0,0,0,-1/2\\]\\]")
 add_test(NAME curvature_flat_test COMMAND ratatoskr curvature --lie-algebra 0,0,12,13  --metric-by-flat 3,2,1,4)
 set_tests_properties(curvature_flat_test PROPERTIES PASS_REGULAR_EXPRESSION "Ricci tensor=\\[\\[0,0,1/2,0\\],\\[0,0,0,0\\],\\[1/2,0,0,0\\],\\[0,0,0,-1/2\\]\\]")
+add_test(NAME killing_test COMMAND ratatoskr killing --lie-algebra "23,31,12")
+set_tests_properties(killing_test PROPERTIES PASS_REGULAR_EXPRESSION "Killing spinors for \\\\lambda=-1/4[\n\r]{{[\n\r]u0[\n\r]u1[\n\r]}}")
+

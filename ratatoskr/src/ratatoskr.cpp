@@ -21,13 +21,14 @@
 #include "programs/examples.h"
 #include "programs/liealgebras.h"
 #include "programs/curvature.h"
+#include "programs/killing.h"
 
 using namespace ratatoskr;
 
 auto alternative_programs = alternative_program_descriptions(
 		Convert::program, Derivative::program, PartialDerivative::program, Invert::program,
 		ExtDerivative::program, ClosedForms::program, Subalgebra::program, SubalgebraWithParameters::program, Derivations::program,
-		Curvature::program
+		Curvature::program, Killing::program
 );
 
 
