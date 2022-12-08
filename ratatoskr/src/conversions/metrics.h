@@ -33,6 +33,15 @@ auto metric_by_on_coframe(unique_ptr<ParameterType> Parameters::*p,unique_ptr<Gr
 	return generic_converter(p,converter,G,signature);
 }
 
+template<typename Parameters, typename ParameterType, typename GroupType>
+auto metric_by_on_coframe(unique_ptr<ParameterType> Parameters::*p,unique_ptr<GroupType> Parameters::*G,vector<int> Parameters::*timelike_indices) {
+	auto converter=[] (const string& parameter, unique_ptr<LieGroup>& G, const vector<int>& timelike_indices) {
+		auto on_coframe=ParseDifferentialForms(G->e(),parameter.c_str());
+		return as_unique(PseudoRiemannianStructureByOrthonormalFrame::FromTimelikeIndices(G.get(),on_coframe, timelike_indices));
+	};
+	return generic_converter(p,converter,G,timelike_indices);
+}
+
 matrix metric_from_eflats(const LieGroup& G, const exvector& deflat) {
 	matrix g(G.Dimension(),G.Dimension());
 	for (int i=0;i<G.Dimension();++i)
