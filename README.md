@@ -393,11 +393,19 @@ There are three main classes used in Wedge to define a metric.
 	
 	 The metric should be passed on the command line as a comma-separated list of one-forms. `signature` should be a pair of integers `(p,q)`. The first `p` entries in the coframe are assumed to be space-like, and the last `q` time-like.
 
+	`metric_by_on_frame(&Parameters::metric, &Parameters::lie_algebra, &Parameters::signature).
+	
+	 Similar, but takes a frame rather than a coframe
+
 - `PseudoRiemannianStructureByOrthonormalFrame`. This is an alternative to `StandardPseudoRiemannianStructure`. The directive to describe this parameter is
 
 	`metric_by_on_coframe(&Parameters::metric, &Parameters::lie_algebra, &Parameters::timelike_indices).
 	
 	 The metric should be passed on the command line as a comma-separated list of one-forms. `timelike_indices` should be a vector of integers `(i_1,...,i_p)`. The entries i_1,...,i_p in the coframe are assumed to be time-like, and the other space-like.
+
+	`metric_by_on_frame(&Parameters::metric, &Parameters::lie_algebra, &Parameters::timelike_indices).
+	
+	 Similar, but takes a frame rather than a coframe
 
 - `PseudoRiemannianStructureByMatrix`. This is the Wedge class for pseudo-Riemannian metrics defined by a matrix. There are two ways to initialize an object of this type in `ratatoskr`. One applies to diagonal matrices, specified on the command line by the comma-separated list of the coefficients, and uses the directive
 	

@@ -1,27 +1,28 @@
 /*******************************************************************************
- *  Copyright (C) 2022 by Diego Conti diego.conti@unipi.it 
- *  This file is part of Ratatoskr.                          
- *  Ratatoskr is free software; you can redistribute it and/or modify         
- *  it under the terms of the GNU General Public License as published by  
- *  the Free Software Foundation; either version 3 of the License, or     
- *  (at your option) any later version.                                   
- *                                                                          
- *  Ratatoskr is distributed in the hope that it will be useful,              
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of        
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         
- *  GNU General Public License for more details.                          
- *                                                                           
- *  You should have received a copy of the GNU General Public License     
- *  along with Wedge; if not, write to the                                
- *   Free Software Foundation, Inc.,                                       
- *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             
- *  
+ *  Copyright (C) 2022 by Diego Conti diego.conti@unipi.it
+ *  This file is part of Ratatoskr.
+ *  Ratatoskr is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Ratatoskr is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Wedge; if not, write to the
+ *   Free Software Foundation, Inc.,
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *
  *******************************************************************************/
 using namespace ratatoskr;
 
 namespace Curvature {
 
 	struct Parameters {
+		GlobalSymbols global_symbols;
 		unique_ptr<LieGroup> G;
 		unique_ptr<PseudoRiemannianStructure> g;
 		pair<int,int> signature;
@@ -29,7 +30,7 @@ namespace Curvature {
 	};
 
 	auto parameters_description=make_parameter_description (
-		"lie-algebra","Lie algebra without parameters",lie_algebra(&Parameters::G),
+		"lie-algebra","Lie algebra, possibly with parameters",lie_algebra(&Parameters::G,&Parameters::global_symbols),
 		alternative("define a pseudo-riemannian metric")(
 			"signature", "signature (p,q)", comma_separated_pair(&Parameters::signature),
 			"metric-by-on-coframe","metric defined by a comma-separated list of elements of an orthonormal coframe", metric_by_on_coframe(&Parameters::g,&Parameters::G,&Parameters::signature)

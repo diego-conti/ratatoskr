@@ -32,10 +32,10 @@ namespace Nabla {
 		"lie-algebra","Lie algebra without parameters",lie_algebra(&Parameters::G),
 		alternative("metric")(
 			"timelike","Sequence of timelike indices in frame",&Parameters::timelike_indices,
-			"indefinite-on-frame","Orthonormal frame for the metric",metric_by_on_coframe(&Parameters::g,&Parameters::G,&Parameters::timelike_indices)
+			"indefinite-on-frame","Orthonormal frame for the metric",metric_by_on_frame(&Parameters::g,&Parameters::G,&Parameters::timelike_indices)
 		)
 		(
-			"on-frame","Orthonormal frame for the metric",metric_by_on_coframe(&Parameters::g,&Parameters::G,&Parameters::timelike_indices)
+			"on-frame","Orthonormal frame for the metric",metric_by_on_frame(&Parameters::g,&Parameters::G,&Parameters::timelike_indices)
 		)
 	);
 	auto program = make_program_description(

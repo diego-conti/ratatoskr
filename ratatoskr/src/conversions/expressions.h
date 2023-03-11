@@ -36,7 +36,7 @@ auto differential_form(ex Parameters::*p,unique_ptr<GroupType> Parameters::*G,Gl
 	auto converter=[] (const string& parameter, unique_ptr<LieGroup>& G, const GlobalSymbols& global_symbols) {
 		return ParseDifferentialForm(G->e(),parameter.c_str(),global_symbols.symbols());
 	};
-	return generic_converter(p,converter,G);
+	return generic_converter(p,converter,G,symbols);
 }
 
 template<typename Parameters>
