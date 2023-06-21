@@ -48,6 +48,10 @@ namespace Curvature {
 		"curvature", "Compute the curvature of a pseudo-Riemannian metric on a Lie algebra",
 		parameters_description, [] (Parameters& parameters, ostream& os) {
 			parameters.G->canonical_print(os)<<endl;
+			for (auto x: parameters.G->e())
+			for (auto y: parameters.G->e())
+				os<<x<<"\\cdot"<<y<<"="<<parameters.g->ScalarProduct().OnVectors(x,y)<<endl;
+
 			PseudoLeviCivitaConnection omega(parameters.G.get(),*parameters.g);
 			os<<"Connection form="<<omega.AsMatrix()<<endl;
 			os<<"Curvature="<<omega.CurvatureForm()<<endl;

@@ -47,7 +47,7 @@ auto metric_by_on_frame(unique_ptr<ParameterType> Parameters::*p,unique_ptr<Grou
 		Frame on_coframe=ParseDifferentialForms(G->e(),parameter.c_str());
 		return as_unique(PseudoRiemannianStructureByOrthonormalFrame::FromTimelikeIndices(G.get(),on_coframe.dual(), timelike_indices));
 	};
-	return generic_converter(p,converter,G,timelike_indices,symbols);
+	return generic_converter(p,converter,G,timelike_indices);
 }
 
 template<typename Parameters, typename ParameterType, typename GroupType>
@@ -57,7 +57,7 @@ auto metric_by_on_frame(unique_ptr<ParameterType> Parameters::*p,unique_ptr<Grou
 		Frame on_coframe=ParseDifferentialForms(G->e(),parameter.c_str());
 		return make_unique<StandardPseudoRiemannianStructure>(G.get(),on_coframe.dual(), signature.first);
 	};
-	return generic_converter(p,converter,G,signature,symbols);
+	return generic_converter(p,converter,G,signature);
 }
 
 matrix metric_from_eflats(const LieGroup& G, const exvector& deflat) {
