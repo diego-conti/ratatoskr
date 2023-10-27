@@ -35,7 +35,7 @@ namespace Curvature {
 			"signature", "signature (p,q)", comma_separated_pair(&Parameters::signature),
 			"metric-by-on-coframe","metric defined by a comma-separated list of elements of an orthonormal coframe", metric_by_on_coframe(&Parameters::g,&Parameters::G,&Parameters::signature)
 		)(
-			"metric-by-flat", "metric defined by a comma-separated list of images of frame elements under flat isomorphism", metric_by_flat(&Parameters::g,&Parameters::G)
+			"metric-by-flat", "metric defined by a comma-separated list of images of frame elements under flat isomorphism", metric_by_flat(&Parameters::g,&Parameters::G,&Parameters::global_symbols)
 		)(
 			"diagonal-metric", "metric identified by the comma-separated-list of diagonal elements of its matrix relative to the given frame", diagonal_metric(&Parameters::g,&Parameters::G)
 		)(
@@ -54,8 +54,8 @@ namespace Curvature {
 
 			PseudoLeviCivitaConnection omega(parameters.G.get(),*parameters.g);
 			os<<"Connection form="<<omega.AsMatrix()<<endl;
-			os<<"Curvature="<<omega.CurvatureForm()<<endl;
-			os<<"Ricci tensor="<<omega.RicciAsMatrix()<<endl;
+			os<<"Curvature="<<ex(omega.CurvatureForm()).normal()<<endl;
+			os<<"Ricci tensor="<<ex(omega.RicciAsMatrix()).normal()<<endl;
 		}
 	);
 

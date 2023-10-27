@@ -76,6 +76,14 @@ auto metric_by_flat(unique_ptr<ParameterType> Parameters::*p,unique_ptr<GroupTyp
 	};
 	return generic_converter(p,converter,G);
 }
+template<typename Parameters, typename ParameterType, typename GroupType, typename Symbols>
+auto metric_by_flat(unique_ptr<ParameterType> Parameters::*p,unique_ptr<GroupType> Parameters::*G, Symbols Parameters::*symbols) {
+	auto converter=[] (const string& parameter, unique_ptr<LieGroup>& G, const Symbols& symbols) {
+		auto deflat=ParseDifferentialForms(G->e(),parameter.c_str(),symbols.symbols());
+		return as_unique(PseudoRiemannianStructureByMatrix::FromMatrixOnFrame(G.get(),G->e(),metric_from_eflats(*G,deflat)));
+	};
+	return generic_converter(p,converter,G,symbols);
+}
 
 template<typename Parameters, typename ParameterType, typename GroupType>
 auto diagonal_metric(unique_ptr<ParameterType> Parameters::*p,unique_ptr<GroupType> Parameters::*G) {
