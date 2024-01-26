@@ -44,6 +44,14 @@ namespace Curvature {
 			"generic-metric", "generic metric all of whose nonzero entries are:", generic_metric_from_nonzero_entries (&Parameters::g,&Parameters::G,&Parameters::symbols)
 		)
 	);
+
+	matrix normal_matrix(matrix m) {
+		for (int i=0;i<m.rows();++i)
+		for (int j=0;j<m.rows();++j)
+			m(i,j)=NormalForm<DifferentialForm>(m(i,j));
+		return m;
+	}
+
 	auto program = make_program_description(
 		"curvature", "Compute the curvature of a pseudo-Riemannian metric on a Lie algebra",
 		parameters_description, [] (Parameters& parameters, ostream& os) {
@@ -53,8 +61,8 @@ namespace Curvature {
 				os<<x<<"\\cdot"<<y<<"="<<parameters.g->ScalarProduct().OnVectors(x,y)<<endl;
 
 			PseudoLeviCivitaConnection omega(parameters.G.get(),*parameters.g);
-			os<<"Connection form="<<omega.AsMatrix()<<endl;
-			os<<"Curvature="<<ex(omega.CurvatureForm()).normal()<<endl;
+			os<<"Connection form="<<omega.AsMatrix()<<endl;			
+			os<<"Curvature="<<normal_matrix(omega.CurvatureForm())<<endl;
 			os<<"Ricci tensor="<<ex(omega.RicciAsMatrix()).normal()<<endl;
 		}
 	);
