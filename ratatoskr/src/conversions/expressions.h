@@ -39,6 +39,41 @@ auto differential_form(ex Parameters::*p,unique_ptr<GroupType> Parameters::*G,Gl
 	return generic_converter(p,converter,G,symbols);
 }
 
+inline exvector parse_expressions(const string& comma_separated_ex, const lst& symbols=lst{}) {
+	int n=0;
+	int last_comma;
+	exvector result;
+	do {
+		last_comma=comma_separated_ex.find(',',n);			
+		auto substring=comma_separated_ex.substr(n,last_comma==string::npos? string::npos : last_comma-n);
+		result.emplace_back(substring,symbols);		
+		n=last_comma+1;
+	} while (last_comma!=string::npos);
+	return result;
+}
+
+template<typename Parameters,  typename GroupType>
+auto spinor(ex Parameters::*p,unique_ptr<GroupType> Parameters::*G,unique_ptr<PseudoRiemannianStructureByOrthonormalFrame> Parameters::*g) {
+	auto converter=[] (const string& parameter, unique_ptr<LieGroup>& G,  unique_ptr<PseudoRiemannianStructureByOrthonormalFrame>& g) {
+		auto coefficients=parse_expressions(parameter);
+		ex result;
+		for (int i=0;i<coefficients.size();++i) result+=coefficients[i]*g->u(i);
+		return result;		
+	};
+	return generic_converter(p,converter,G,g);
+}
+
+template<typename Parameters,  typename GroupType, typename Symbols>
+auto spinor(ex Parameters::*p,unique_ptr<GroupType> Parameters::*G,unique_ptr<PseudoRiemannianStructureByOrthonormalFrame> Parameters::*g,Symbols Parameters::*symbols) {
+	auto converter=[] (const string& parameter, unique_ptr<LieGroup>& G,  unique_ptr<PseudoRiemannianStructureByOrthonormalFrame>& g,const Symbols& symbols) {
+		auto coefficients=parse_expressions(parameter,symbols.symbols());
+		ex result;
+		for (int i=0;i<coefficients.size();++i) result+=coefficients[i]*g->u(i);
+		return result;		
+	};
+	return generic_converter(p,converter,G,g,symbols);
+}
+
 template<typename Parameters>
 auto expression(ex Parameters::*p) {
 	auto converter=[] (const string& parameter) {

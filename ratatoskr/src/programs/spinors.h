@@ -39,7 +39,7 @@ namespace Nabla {
 		)
 	);
 	auto program = make_program_description(
-		"nabla", "Compute covariant derivatives of  spinors on a pseudo-Riemannian metric on a Lie algebra",
+		"nabla", "Compute covariant derivatives of spinors on a pseudo-Riemannian metric on a Lie algebra",
 		parameters_description, [] (Parameters& parameters, ostream& os) {
 			parameters.G->canonical_print(os)<<endl;
 			PseudoLeviCivitaConnection omega(parameters.G.get(),*parameters.g);
@@ -55,6 +55,42 @@ namespace Nabla {
 
 }
 
+namespace NablaSpinor {
+
+	struct Parameters {
+		unique_ptr<LieGroup> G;
+		unique_ptr<PseudoRiemannianStructureByOrthonormalFrame> g;
+		ex psi;
+		vector<int> timelike_indices;
+		lst symbols;
+		GlobalSymbols global_symbols;
+	};
+
+	auto parameters_description=make_parameter_description (
+		"lie-algebra","Lie algebra without parameters",lie_algebra(&Parameters::G),
+		alternative("metric")(
+			"timelike","Sequence of timelike indices in frame",&Parameters::timelike_indices,
+			"indefinite-on-frame","Orthonormal frame for the metric",metric_by_on_frame(&Parameters::g,&Parameters::G,&Parameters::timelike_indices)
+		)
+		(
+			"on-frame","Orthonormal frame for the metric",metric_by_on_frame(&Parameters::g,&Parameters::G,&Parameters::timelike_indices)
+		),
+		"spinor","coefficients of the spinor relative to basis",spinor(&Parameters::psi,&Parameters::G,&Parameters::g,&Parameters::global_symbols)
+	);
+	auto program = make_program_description(
+		"nabla-spinor", "Compute covariant derivatives of a spinor on a pseudo-Riemannian metric on a Lie algebra",
+		parameters_description, [] (Parameters& parameters, ostream& os) {
+			parameters.G->canonical_print(os)<<endl;
+			PseudoLeviCivitaConnection omega(parameters.G.get(),*parameters.g);
+			os<<"Connection form="<<omega.AsMatrix()<<endl;            
+            for (auto X : parameters.G->e()) {            
+                auto nabla_X_psi=omega.Nabla<Spinor>(X,parameters.psi);
+                os<<"\\nabla_{"<<X<<"}"<<parameters.psi<<"="<<nabla_X_psi<<endl;
+            }
+		}
+	);
+
+}
 namespace Clifford {
 
 	struct Parameters {
