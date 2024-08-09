@@ -33,7 +33,7 @@ auto lie_algebra(unique_ptr<ParameterType> Parameters::*p) {
 template<typename Parameters, typename ParameterType, typename SymbolsClass>
 auto lie_algebra(unique_ptr<ParameterType> Parameters::*p, SymbolsClass Parameters::*symbols) {
 	auto converter=[] (const string& parameter, const Symbols& symbols) {
-		return make_unique<AbstractLieGroup<true>>(parameter,symbols.symbols());
+		return make_unique<LieGroupFamily>(parameter,symbols.symbols());
 	};
 	return generic_converter(p,converter,symbols);
 }

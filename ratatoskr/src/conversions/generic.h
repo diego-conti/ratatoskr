@@ -106,5 +106,18 @@ auto generic_metric_from_zero_entries(unique_ptr<PseudoRiemannianStructure> Para
 	return generic_converter<vector<string>>(p,converter,G,metric_parameters);
 }
 
+template<typename Parameters, typename ParameterType>
+auto generic_lie_algebra(unique_ptr<ParameterType> Parameters::*p ,lst Parameters::*structure_constants) {
+	auto converter=[] (int parameter, lst& structure_constants) {
+		auto result=make_unique<GenericLieGroup>(parameter);
+		exvector symbols;
+		for (auto e: result->e()) GetSymbols<StructureConstant>(symbols,result->d(e));
+		for (auto symbol : symbols)
+			structure_constants.append(symbol);
+		return move(result);
+	};
+	return generic_converter<int>(p,converter,structure_constants);
+}
+
 }
 #endif

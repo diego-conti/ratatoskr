@@ -75,7 +75,7 @@ namespace NablaSpinor {
 		(
 			"on-frame","Orthonormal frame for the metric",metric_by_on_frame(&Parameters::g,&Parameters::G,&Parameters::timelike_indices)
 		),
-		"spinor","coefficients of the spinor relative to basis",spinor(&Parameters::psi,&Parameters::G,&Parameters::g,&Parameters::global_symbols)
+		"spinor","coefficients of the spinor relative to basis",spinor(&Parameters::psi,&Parameters::g,&Parameters::global_symbols)
 	);
 	auto program = make_program_description(
 		"nabla-spinor", "Compute covariant derivatives of a spinor on a pseudo-Riemannian metric on a Lie algebra",
@@ -84,7 +84,7 @@ namespace NablaSpinor {
 			PseudoLeviCivitaConnection omega(parameters.G.get(),*parameters.g);
 			os<<"Connection form="<<omega.AsMatrix()<<endl;            
             for (auto X : parameters.G->e()) {            
-                auto nabla_X_psi=omega.Nabla<Spinor>(X,parameters.psi);
+                auto nabla_X_psi=NormalForm<Spinor>(omega.Nabla<Spinor>(X,parameters.psi));
                 os<<"\\nabla_{"<<X<<"}"<<parameters.psi<<"="<<nabla_X_psi<<endl;
             }
 		}

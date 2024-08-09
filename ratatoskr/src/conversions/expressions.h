@@ -52,26 +52,26 @@ inline exvector parse_expressions(const string& comma_separated_ex, const lst& s
 	return result;
 }
 
-template<typename Parameters,  typename GroupType>
-auto spinor(ex Parameters::*p,unique_ptr<GroupType> Parameters::*G,unique_ptr<PseudoRiemannianStructureByOrthonormalFrame> Parameters::*g) {
-	auto converter=[] (const string& parameter, unique_ptr<LieGroup>& G,  unique_ptr<PseudoRiemannianStructureByOrthonormalFrame>& g) {
+template<typename Parameters>
+auto spinor(ex Parameters::*p,unique_ptr<PseudoRiemannianStructureByOrthonormalFrame> Parameters::*g) {
+	auto converter=[] (const string& parameter,  unique_ptr<PseudoRiemannianStructureByOrthonormalFrame>& g) {
 		auto coefficients=parse_expressions(parameter);
 		ex result;
 		for (int i=0;i<coefficients.size();++i) result+=coefficients[i]*g->u(i);
 		return result;		
 	};
-	return generic_converter(p,converter,G,g);
+	return generic_converter(p,converter,g);
 }
 
-template<typename Parameters,  typename GroupType, typename Symbols>
-auto spinor(ex Parameters::*p,unique_ptr<GroupType> Parameters::*G,unique_ptr<PseudoRiemannianStructureByOrthonormalFrame> Parameters::*g,Symbols Parameters::*symbols) {
-	auto converter=[] (const string& parameter, unique_ptr<LieGroup>& G,  unique_ptr<PseudoRiemannianStructureByOrthonormalFrame>& g,const Symbols& symbols) {
+template<typename Parameters, typename Symbols>
+auto spinor(ex Parameters::*p,unique_ptr<PseudoRiemannianStructureByOrthonormalFrame> Parameters::*g,Symbols Parameters::*symbols) {
+	auto converter=[] (const string& parameter,  unique_ptr<PseudoRiemannianStructureByOrthonormalFrame>& g,const Symbols& symbols) {
 		auto coefficients=parse_expressions(parameter,symbols.symbols());
 		ex result;
 		for (int i=0;i<coefficients.size();++i) result+=coefficients[i]*g->u(i);
 		return result;		
 	};
-	return generic_converter(p,converter,G,g,symbols);
+	return generic_converter(p,converter,g,symbols);
 }
 
 template<typename Parameters>
