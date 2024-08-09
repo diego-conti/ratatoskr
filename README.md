@@ -293,7 +293,7 @@ The different types of LieGroup in Wedge require different directives.
 	
 	To understand how the Lie algebra is encoded in the command line argument `--lie-algebra`, see [differential form parsing](#differentialforms).
 	
-- `AbstractLieGroup<true>` is the Wedge class for Lie groups depending on parameters. Use the directive `lie_algebra(Parameters::&G, Parameters:&symbols)`, where 
+- `LieGroupFamily` is the Wedge class for Lie groups depending on parameters. Use the directive `lie_algebra(Parameters::&G, Parameters:&symbols)`, where 
 	+ `G` is a member of `Parameters` of type `unique_ptr<LieGroup>`, or possibly `unique_ptr<AbstractLieGroup<true>>`
 	+ `symbols` is a member of `Parameters` of type `ex` or `GlobalSymbols`.
 	
