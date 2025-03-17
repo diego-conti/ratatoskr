@@ -24,41 +24,41 @@ using namespace GiNaC;
 using namespace Wedge;
 
 template<typename Parameters, typename ParameterType, typename GroupType>
-auto metric_by_on_coframe(unique_ptr<ParameterType> Parameters::*p,unique_ptr<GroupType> Parameters::*G,pair<int,int> Parameters::*signature) {
-	auto converter=[] (const string& parameter, unique_ptr<LieGroup>& G, pair<int,int> signature) {
+auto metric_by_on_coframe(unique_ptr<ParameterType> Parameters::*p,unique_ptr<GroupType> Parameters::*G,pair<int,int> Parameters::*signature,CliffordConvention clifford_convention=CliffordConvention::STANDARD) {
+	auto converter=[clifford_convention] (const string& parameter, unique_ptr<LieGroup>& G, pair<int,int> signature) {
 		if (signature.first<0 || signature.second<0 || signature.first+signature.second!=G->Dimension()) throw ConversionError("signature should be a pair of nonnegative integers summing to the dimension");
 		auto on_coframe=ParseDifferentialForms(G->e(),parameter.c_str());
-		return make_unique<StandardPseudoRiemannianStructure>(G.get(),on_coframe, signature.first);
+		return as_unique(PseudoRiemannianStructureByOrthonormalFrame::FromSignature(G.get(),on_coframe, signature,clifford_convention));
+	};
+	return generic_converter(p,converter,G,signature);
+}
+template<typename Parameters, typename ParameterType, typename GroupType>
+auto metric_by_on_frame(unique_ptr<ParameterType> Parameters::*p,unique_ptr<GroupType> Parameters::*G,pair<int,int> Parameters::*signature,CliffordConvention clifford_convention=CliffordConvention::STANDARD) {
+	auto converter=[clifford_convention] (const string& parameter, unique_ptr<LieGroup>& G, pair<int,int> signature) {
+		if (signature.first<0 || signature.second<0 || signature.first+signature.second!=G->Dimension()) throw ConversionError("signature should be a pair of nonnegative integers summing to the dimension");
+		Frame on_coframe=ParseDifferentialForms(G->e(),parameter.c_str());		
+		return as_unique(PseudoRiemannianStructureByOrthonormalFrame::FromSignature(G.get(),on_coframe.dual(), signature,clifford_convention));
 	};
 	return generic_converter(p,converter,G,signature);
 }
 
 template<typename Parameters, typename ParameterType, typename GroupType>
-auto metric_by_on_coframe(unique_ptr<ParameterType> Parameters::*p,unique_ptr<GroupType> Parameters::*G,vector<int> Parameters::*timelike_indices) {
-	auto converter=[] (const string& parameter, unique_ptr<LieGroup>& G, const vector<int>& timelike_indices) {
+auto metric_by_on_coframe(unique_ptr<ParameterType> Parameters::*p,unique_ptr<GroupType> Parameters::*G,vector<int> Parameters::*timelike_indices,CliffordConvention clifford_convention=CliffordConvention::STANDARD) {	
+	auto converter=[clifford_convention] (const string& parameter, unique_ptr<LieGroup>& G, const vector<int>& timelike_indices) {
 		auto on_coframe=ParseDifferentialForms(G->e(),parameter.c_str());
-		return as_unique(PseudoRiemannianStructureByOrthonormalFrame::FromTimelikeIndices(G.get(),on_coframe, timelike_indices));
+		return as_unique(PseudoRiemannianStructureByOrthonormalFrame::FromTimelikeIndices(G.get(),on_coframe, timelike_indices,CliffordConvention::STANDARD));
 	};
 	return generic_converter(p,converter,G,timelike_indices);
 }
 template<typename Parameters, typename ParameterType, typename GroupType>
-auto metric_by_on_frame(unique_ptr<ParameterType> Parameters::*p,unique_ptr<GroupType> Parameters::*G,vector<int> Parameters::*timelike_indices) {
-	auto converter=[] (const string& parameter, unique_ptr<LieGroup>& G, const vector<int>& timelike_indices) {
+auto metric_by_on_frame(unique_ptr<ParameterType> Parameters::*p,unique_ptr<GroupType> Parameters::*G,vector<int> Parameters::*timelike_indices,CliffordConvention clifford_convention=CliffordConvention::STANDARD) {
+	auto converter=[clifford_convention] (const string& parameter, unique_ptr<LieGroup>& G, const vector<int>& timelike_indices) {
 		Frame on_coframe=ParseDifferentialForms(G->e(),parameter.c_str());
-		return as_unique(PseudoRiemannianStructureByOrthonormalFrame::FromTimelikeIndices(G.get(),on_coframe.dual(), timelike_indices));
+		return as_unique(PseudoRiemannianStructureByOrthonormalFrame::FromTimelikeIndices(G.get(),on_coframe.dual(), timelike_indices,CliffordConvention::STANDARD));
 	};
 	return generic_converter(p,converter,G,timelike_indices);
 }
 
-template<typename Parameters, typename ParameterType, typename GroupType>
-auto metric_by_on_frame(unique_ptr<ParameterType> Parameters::*p,unique_ptr<GroupType> Parameters::*G,pair<int,int> Parameters::*signature) {
-	auto converter=[] (const string& parameter, unique_ptr<LieGroup>& G, pair<int,int> signature) {
-		if (signature.first<0 || signature.second<0 || signature.first+signature.second!=G->Dimension()) throw ConversionError("signature should be a pair of nonnegative integers summing to the dimension");
-		Frame on_coframe=ParseDifferentialForms(G->e(),parameter.c_str());
-		return make_unique<StandardPseudoRiemannianStructure>(G.get(),on_coframe.dual(), signature.first);
-	};
-	return generic_converter(p,converter,G,signature);
-}
 
 matrix metric_from_eflats(const LieGroup& G, const exvector& deflat) {
 	matrix g(G.Dimension(),G.Dimension());

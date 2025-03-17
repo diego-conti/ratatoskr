@@ -180,15 +180,15 @@ auto make_sequence_of_parameter_descriptions(T... options) {
 }
 
 template<typename BoostType=string,typename Parameters, typename ParameterType, typename Converter,  typename... RequiredParameters>
-auto generic_converter(ParameterType Parameters::*p, Converter&& converter, RequiredParameters... required_parameters) {
+auto generic_converter(ParameterType Parameters::*p, Converter converter, RequiredParameters... required_parameters) {
 	auto tuple=make_tuple(required_parameters...);
-	return dependent_parameter_tag<Parameters,ParameterType,Converter,decltype(tuple),BoostType>{p,std::forward<Converter>(converter),move(tuple)};
+	return dependent_parameter_tag<Parameters,ParameterType,Converter,decltype(tuple),BoostType>{p,converter,move(tuple)};
 }
 
 template<typename Parameters, typename ParameterType, typename Converter, typename... RequiredParameters>
-auto generic_option(ParameterType Parameters::*p, Converter&& converter, RequiredParameters... required_parameters) {
+auto generic_option(ParameterType Parameters::*p, Converter converter, RequiredParameters... required_parameters) {
 	auto tuple=make_tuple(required_parameters...);
-	return option_tag<Parameters,ParameterType,Converter,decltype(tuple)>{p,std::forward<Converter>(converter),move(tuple)};
+	return option_tag<Parameters,ParameterType,Converter,decltype(tuple)>{p,converter,move(tuple)};
 }
 }
 #endif
